@@ -1,0 +1,31 @@
+<meta charset="utf-8">
+<div id="root">
+	There are <span data-bind="text: roles.length()"></span> items
+	<button data-bind="enable: roles.length() < 5, click: add">Add</button>
+</div>
+
+
+<script src="build/build.js"></script>
+<script>
+	$ = require('dom')
+	var model = require('karlbohlmark-evented-model/index.js')
+	
+	var User = model('User')
+    			.attr('firstname')
+    			.collection('roles')
+	
+	User.prototype.add = function () {
+		this.roles.push('some-role')
+	}
+
+	var lina = new User({
+		firstname: 'lina',
+		roles: ['admin', 'user']
+	})
+
+	var root = $('#root')
+	var react = require("react")
+	react(root.get(0), lina)
+
+	lina.roles.push('another-role')
+</script>

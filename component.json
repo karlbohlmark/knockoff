@@ -1,0 +1,21 @@
+{
+  "name": "react",
+  "repo": "karlbohlmark/knockoff",
+  "description": "Knockout knockoff",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "component/dom": "*",
+    "karlbohlmark/evented-model": "*",
+    "component/to-function": "*",
+    "karlbohlmark/implicit-globals": "*"
+  },
+  "development": {},
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": [
+    "index.js",
+    "parse.js",
+    "bindings.js"
+  ]
+}
