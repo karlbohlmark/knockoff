@@ -1,31 +1,44 @@
 <meta charset="utf-8">
-<div id="root">
-	There are <span data-bind="text: roles.length()"></span> items
-	<button data-bind="enable: roles.length() < 5, click: add">Add</button>
-</div>
 
+<div id="root">
+    <div data-bind="foreach: user in users">
+        <span data-bind="text: user.firstname"></span>
+        <ul class="roles">
+            <li class="role" data-bind="foreach: role in user.roles, text: role"></li>
+        </ul>
+    </div>
+</div>
 
 <script src="build/build.js"></script>
 <script>
-	$ = require('dom')
-	var model = require('karlbohlmark-evented-model/index.js')
-	
-	var User = model('User')
-    			.attr('firstname')
-    			.collection('roles')
-	
-	User.prototype.add = function () {
-		this.roles.push('some-role')
-	}
+    $ = require('dom')
+    var model = require('karlbohlmark-evented-model/index.js')
+    
+    var ObservableCollection = require('karlbohlmark-observable-collection/index.js')
 
-	var lina = new User({
-		firstname: 'lina',
-		roles: ['admin', 'user']
-	})
+    var User = model('User')
+                .attr('firstname')
+                .collection('roles')
+    
+    User.prototype.add = function () {
+        this.roles.push('some-role')
+    }
 
-	var root = $('#root')
-	var react = require("react")
-	react(root.get(0), lina)
+    var lina = new User({
+        firstname: 'lina',
+        roles: ['admin', 'user']
+    })
 
-	lina.roles.push('another-role')
+    var lisa = new User({
+        firstname: 'lisa',
+        roles: ['user']
+    })
+
+    var userList = new ObservableCollection([lina, lisa])
+    
+    var root = $('#root').get(0)
+    var react = require("react")
+    react(root, { users: userList })
+
+    lina.roles.push('another-role')
 </script>

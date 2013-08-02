@@ -1,76 +1,47 @@
-var readExpr = require('./parse')
 var toFn = require('to-function')
 
-var data_bind = 'data-bind'
+var data_bind = 'data-bind';
 
-var _bindings = require('./bindings')
+var parseBinding = require('./parse-binding');
+var _bindings = require('./bindings');
 
-module.exports = bind
+module.exports = bind;
 
-function peek (str) {
-	return str[str.length-1]
+var skipNodes = [];
+
+function skipNode (n) {
+	skipNodes.push(n);
 }
 
-function readKey (str) {
-	var i = 0, c
-	while ((c = str[i]) && c != ':') {
-		i++
-	}
-
-	return i
-}
-
-function readChar (chr) {
-	return function (str) {
-		if (peek(str) != chr) {
-			//throw new Error(chr)
-		}
-		return 1
-	}
-}
-
-function readComma (str) {
-	return readChar(',')(str)
-}
-
-
-function parseBinding (binding) {
-	var pos = 0
-	var str = binding
-	var bindings = []
-	
-	function advance (reader) {
-		var i = reader(str)
-		var val = str.slice(0, i)
-		str = str.slice(i, str.length)
-		return val
-	}
-	
-	do {
-		var key = advance(readKey).trim()
-		advance(readChar(':'))
-		var expr = advance(readExpr).trim()
-		advance(readComma)
-		bindings.push({
-			key: key,
-			expr: expr
-		})
-	} while (str.length)
-	return bindings;
+function shouldSkip(n) {
+	return skipNodes.indexOf(n) !== -1;
 }
 
 function bind(node, model) {
-	for (var i=0; i<node.children.length; i++) {
-		var child = node.children[i]
-		bind(child, model)
+	console.log('calling bind on', node)
+	if (shouldSkip(node)) return;
+	var bindingAttr = node.getAttribute(data_bind);
+	var bindings = bindingAttr && parseBinding(bindingAttr) || [];
+	
+	var foreach = bindings.filter( function (b) { return b.key == 'foreach' } );
+	
+	if (foreach.length) bindings = foreach;
+
+	var children = []
+	for (var i = 0; i<node.children.length; i++) {
+		children.push(node.children[i])
 	}
 
-	var bindingAttr = node.getAttribute(data_bind)
-	if (!bindingAttr) return
-	var bindings = parseBinding(bindingAttr)
-	bindings.map(function (b) {
-		_bindings[b.key](node, model, b.expr)
-	})
+	var skipChildren = bindings.reduce(function (skip, b) {
+		return skip || _bindings[b.key](node, model, b.expr, bind, skipNode);
+	}, false)
+
+	if (!skipChildren) {
+		for (var i=0; i<children.length; i++) {
+			var child = children[i];
+			bind(child, model);
+		}
+	}
 }
 
 var ex = "text: stuff.asdf(), value: val, other-binding: stuffs.count < 9"
