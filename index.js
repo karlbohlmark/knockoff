@@ -1,8 +1,7 @@
 var toFn = require('to-function')
 
-var data_bind = 'data-bind';
+var BindingAccessor = require('./binding-accessor')
 
-var parseBinding = require('./parse-binding');
 var _bindings = require('./bindings');
 
 module.exports = bind;
@@ -20,8 +19,9 @@ function shouldSkip(n) {
 function bind(node, model) {
 	console.log('calling bind on', node)
 	if (shouldSkip(node)) return;
-	var bindingAttr = node.getAttribute(data_bind);
-	var bindings = bindingAttr && parseBinding(bindingAttr) || [];
+
+	var bindingAccessor = new BindingAccessor(node)
+	var bindings = bindingAccessor.get();
 	
 	var foreach = bindings.filter( function (b) { return b.key == 'foreach' } );
 	
@@ -33,7 +33,7 @@ function bind(node, model) {
 	}
 
 	var skipChildren = bindings.reduce(function (skip, b) {
-		return skip || _bindings[b.key](node, model, b.expr, bind, skipNode);
+		return skip || _bindings[b.key](node, model, b.value, bind, skipNode);
 	}, false)
 
 	if (!skipChildren) {

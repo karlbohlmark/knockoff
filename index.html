@@ -2,7 +2,7 @@
 
 <div id="root">
     <div data-bind="foreach: user in users">
-        <span data-bind="text: user.firstname"></span>
+        <span data-bind="text: user.firstname, attr: { id: user.firstname}"></span>
         <ul class="roles">
             <li class="role" data-bind="foreach: role in user.roles, text: role"></li>
         </ul>
@@ -37,7 +37,7 @@
     var userList = new ObservableCollection([lina, lisa])
     
     var root = $('#root').get(0)
-    var react = require("react")
+    var react = require("knockoff")
     react(root, { users: userList })
 
     lina.roles.push('another-role')

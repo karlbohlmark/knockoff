@@ -1,8 +1,12 @@
 var globals = require('implicit-globals')
 var uuid = require('uuid')
-var parseBinding = require('./parse-binding')
+
+var BindingAccessor = require('./binding-accessor')
+var staticEval = require('static-eval')
+var codegen = require('escodegen').generate
 
 module.exports.value = value
+module.exports.attr = attr
 module.exports.text = text
 module.exports.enable = enable
 module.exports.click = click
@@ -18,7 +22,7 @@ function text (node, model, expr) {
 
 	function setText() {
 		var result = evaluate(model, expr)
-		node.textContent = result.toString()	
+		node.textContent = result.toString()
 	}
 	
 	setText()
@@ -26,7 +30,23 @@ function text (node, model, expr) {
 	onchange(model, expr, setText)
 }
 
+function attr (node, model, bindings) {
+	console.log('apply attr binding', model, bindings)
+
+	bindings.properties.forEach(function (binding) {
+		setAttrs(binding)
+		onchange(model, codegen(binding.value), setAttrs.bind(binding))
+	})
+	
+	function setAttrs(b) {
+		var result = evaluate(model, b.value)
+		console.log('setting attr to', result.toString())
+		node.setAttribute(b.key.name, result)
+	}	
+}
+
 function evaluate (model, expr) {
+	/*
 	var evalexpr = '(function(){with(model){var r=' + expr + ';if(typeof r=="function")r=' + expr + '();return r;}}())'
 	var r
 	try {
@@ -34,6 +54,8 @@ function evaluate (model, expr) {
 	} catch (e) {
 		console.error(e)
 	}
+	*/
+	r = staticEval(expr, model)
 	return r
 }
 
@@ -76,12 +98,6 @@ function insertAfter (newNode, ref) {
 	}
 }
 
-function serializeBindingAttr(bindings) {
-	return bindings.map(function (b) {
-		return b.key + ':' + b.expr
-	}).join(', ')
-}
-
 function getPropertyPath(obj, propertyPath) {
 	var parts = propertyPath.split('.')
 	var val = obj
@@ -94,9 +110,8 @@ function getPropertyPath(obj, propertyPath) {
 
 function foreach (node, model, iteration, bind, skip) {
 	skip(node)
-	var parts = iteration.split(' ')
-	var collection = parts.pop()
-	var itemname = parts.shift()
+	var collection = codegen(iteration.right)
+	var itemname = iteration.left.name
 
 	var coll = getPropertyPath(model, collection)
 
@@ -108,12 +123,15 @@ function foreach (node, model, iteration, bind, skip) {
 	parent.insertBefore(comment, node)
 	node.parentNode.removeChild(node)
 	
-	var bindings = parseBinding(clone.getAttribute('data-bind'))
+	var bindingAccessor = new BindingAccessor(clone)
+
+	var bindings = bindingAccessor.get()
+
 	bindings = bindings.filter(function (b) {
 		return b.key != 'foreach'
 	})
 
-	clone.setAttribute('data-bind', serializeBindingAttr(bindings))
+	bindingAccessor.set(bindings)
 
 	var tail;
 
@@ -142,4 +160,9 @@ function foreach (node, model, iteration, bind, skip) {
 		addItem(item)
 	})
 	return true
+}
+
+
+function parseBinding() {
+
 }

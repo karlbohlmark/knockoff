@@ -10,15 +10,17 @@
     "component/to-function": "*",
     "karlbohlmark/implicit-globals": "*",
     "gjohnson/uuid": "*",
-    "karlbohlmark/observable-collection": "*"
+    "karlbohlmark/observable-collection": "*",
+    "karlbohlmark/static-eval": "*",
+    "karlbohlmark/acorn": "*",
+    "karlbohlmark/escodegen": "*"
   },
   "development": {},
   "license": "MIT",
   "main": "index.js",
   "scripts": [
     "index.js",
-    "parse.js",
-    "parse-binding.js",
+    "binding-accessor.js",
     "bindings.js"
   ]
 }
