@@ -1,4 +1,5 @@
 var globals = require('implicit-globals')
+var memberExpressionsByRoot = require('member-expressions-by-root')
 var uuid = require('uuid')
 
 var BindingAccessor = require('./binding-accessor')
@@ -35,7 +36,7 @@ function attr (node, model, bindings) {
 
 	bindings.properties.forEach(function (binding) {
 		setAttrs(binding)
-		onchange(model, codegen(binding.value), setAttrs.bind(binding))
+		onchange(model, codegen(binding.value), setAttrs.bind(null, binding))
 	})
 	
 	function setAttrs(b) {
@@ -59,18 +60,86 @@ function evaluate (model, expr) {
 	return r
 }
 
+function subPaths (paths) {
+	var o = {}
+	paths.forEach(function (p) {
+		ensurePath(o, p)
+	})
+
+	return allPaths(o)
+}
+
+function ensurePath(o, path) {
+	var parts = path.split('.')
+	for(var i=0; i<parts.length; i++) {
+		var part = parts[i];
+		if (typeof o[part] == 'undefined') {
+			o[part] = {}
+		}
+		o = o[part];
+	}
+}
+
+function allPaths(o) {
+	var keys = Object.keys(o)
+	
+	return keys.concat(keys.reduce(function (acc, key) {
+		acc.push.apply(acc, allPaths(o[key])
+			.map(function (childPath) {
+				return key + '.' + childPath
+			}))
+		return acc
+	}, []))
+}
+
 /*
 	Run handler when expr changes in the context of model
 */
 function onchange (model, expr, handler) {
-	var deps = globals(expr);
-	deps.map(function (id) {
-		var prop = model[id]
-		if (prop.length) {
-			if (prop.on) prop.on('change', handler);
-		}
-		if (model.on) model.on('change ' + id, handler);
-	})
+	var rootDeps = globals(expr)
+
+	var memberExpressions = memberExpressionsByRoot.bind(null, expr)
+
+	var deps = rootDeps.reduce(function (acc, cur) {
+		acc.push(cur)
+		acc.push.apply(acc, memberExpressions(cur).map(codegen))
+		return acc
+	}, [])
+
+	var watched = []
+	watchPath.bind(watched)
+
+	subPaths(deps)
+		.map(function (p) {
+			watchPath(model, p, handler)
+		})
+
+}
+
+function parentPath (path) {
+	var parts = path.split('.')
+	parts.pop()
+	return parts.join('.')
+}
+
+function watchPath(model, path, handler) {
+	console.log('watch path:', path)
+	var propName = path.split('.').pop()
+
+	var prop = getPropertyPath(model, path)
+
+	// If array-like object watch for changes
+	if (typeof prop == 'object' && prop.length) {
+		if (prop.on) prop.on('change', handler);
+	}
+
+	var parent = model
+	var parentP = parentPath(path)
+	if (parentP) {
+		parent = getPropertyPath(model, parentP)
+	}
+
+	if (parent.on) parent.on('change ' + propName, handler);
 }
 
 function enable (node, model, expr) {

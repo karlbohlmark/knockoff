@@ -13,7 +13,8 @@
     "karlbohlmark/observable-collection": "*",
     "karlbohlmark/static-eval": "*",
     "karlbohlmark/acorn": "*",
-    "karlbohlmark/escodegen": "*"
+    "karlbohlmark/escodegen": "*",
+    "karlbohlmark/member-expressions-by-root": "*"
   },
   "development": {},
   "license": "MIT",
