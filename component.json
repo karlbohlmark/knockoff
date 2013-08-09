@@ -14,7 +14,8 @@
     "karlbohlmark/static-eval": "*",
     "karlbohlmark/acorn": "*",
     "karlbohlmark/escodegen": "*",
-    "karlbohlmark/member-expressions-by-root": "*"
+    "karlbohlmark/member-expressions-by-root": "*",
+    "paulmillr/es6-shim": "*"
   },
   "development": {},
   "license": "MIT",

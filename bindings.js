@@ -41,7 +41,6 @@ function attr (node, model, bindings) {
 	
 	function setAttrs(b) {
 		var result = evaluate(model, b.value)
-		console.log('setting attr to', result.toString())
 		node.setAttribute(b.key.name, result)
 	}	
 }
@@ -211,23 +210,28 @@ function foreach (node, model, iteration, bind, skip) {
 		tail = n
 	}
 
+	var itemNodeMap = new Map()
+
 	function addItem (item) {
 		var n = clone.cloneNode(true)
 		var m = {}
 		m[itemname] = item
 		append(n)
 		bind(n, m)
+		itemNodeMap.set(item, n)
+	}
+
+	function removeItem (item) {
+		var node = itemNodeMap.get(item)
+		itemNodeMap.delete(item)
+		node.parentNode.removeChild(node)
 	}
 
 	coll.forEach(addItem)
 
-	coll.on('remove', function () {
-		console.log('removed foreach item')
-	})
+	coll.on('remove', removeItem)
 
-	coll.on('add', function (item) {
-		addItem(item)
-	})
+	coll.on('add', addItem)
 	return true
 }
 

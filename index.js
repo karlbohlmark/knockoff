@@ -1,3 +1,7 @@
+if (typeof Map == 'undefined') {
+	require('es6-shim')
+}
+
 var toFn = require('to-function')
 
 var BindingAccessor = require('./binding-accessor')
