@@ -38,10 +38,19 @@ function attr (node, model, bindings) {
 		setAttrs(binding)
 		onchange(model, codegen(binding.value), setAttrs.bind(null, binding))
 	})
+
+	function key (n) {
+		switch (n.type) {
+			case 'Identifier':
+				return n.name;
+			case 'Literal':
+				return n.value;
+		}
+	}
 	
 	function setAttrs(b) {
 		var result = evaluate(model, b.value)
-		node.setAttribute(b.key.name, result)
+		node.setAttribute( key(b.key), result)
 	}	
 }
 
@@ -153,9 +162,30 @@ function enable (node, model, expr) {
 }
 
 function click (node, model, method) {
+	var fn = staticEval(method, model)
+
+	var context = model;
+
+	if (method.type == 'MemberExpression') {
+		var property = method.property
+		if (method.object.object) {
+			while (method.object.object == 'MemberExpression') {
+				method.object = method.object.property
+				method.property = property
+			}
+		} else {
+			method = method.object
+		}
+		context = staticEval(method, model)
+	}
+
 	node.addEventListener('click', function (e) {
-		model[method]()
+		fn.call(context)
 	})
+}
+
+function getMemberExpressionProp (memberExpression) {
+
 }
 
 function insertAfter (newNode, ref) {
