@@ -12,10 +12,36 @@ module.exports.text = text
 module.exports.enable = enable
 module.exports.click = click
 module.exports.foreach = foreach
+module.exports.options = options
 
 function value (node, expr) {
 	console.log('apply value binding')
 }
+
+
+function options (node, model, expr) {
+	var coll = model
+
+	function addOption (parent, value) {
+		var opt = document.createElement('option')
+		opt.value = value
+		parent.appendChild(opt)
+	}
+
+	function clearOptions (list) {
+		list.innerHTML = ''
+	}
+
+	function setOptions () {
+		clearOptions(node)
+		coll.forEach(addOption.bind(null, node))
+	}
+
+	model.on('change', setOptions)
+
+	setOptions()
+}
+
 
 function text (node, model, expr) {
 	console.log('apply text binding', model, expr)
@@ -131,7 +157,6 @@ function parentPath (path) {
 }
 
 function watchPath(model, path, handler) {
-	console.log('watch path:', path)
 	var propName = path.split('.').pop()
 
 	var prop = getPropertyPath(model, path)
@@ -251,13 +276,31 @@ function foreach (node, model, iteration, bind, skip) {
 		itemNodeMap.set(item, n)
 	}
 
+	/*
+		Added to handle editable collections of primitives.
+		Currently limited to handling collections with unique items
+	*/
+	function replaceItem (index, newVersion, oldVersion) {
+		var node = itemNodeMap.get(oldVersion)
+		itemNodeMap.delete(oldVersion)
+		var m = {}
+		m[itemname] = newVersion
+		bind(node, m)
+		itemNodeMap.set(newVersion, node)
+	}
+
 	function removeItem (item) {
 		var node = itemNodeMap.get(item)
 		itemNodeMap.delete(item)
+		if (node === tail) {
+			tail = node.previousSibling
+		}
 		node.parentNode.removeChild(node)
 	}
 
 	coll.forEach(addItem)
+
+	coll.on('replace', replaceItem)
 
 	coll.on('remove', removeItem)
 
