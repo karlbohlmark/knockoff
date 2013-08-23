@@ -5,9 +5,9 @@ if (typeof Map == 'undefined') {
 var toFn = require('to-function')
 
 var BindingAccessor = require('./binding-accessor')
-
 var _bindings = require('./bindings');
 
+/* Export bind */
 module.exports = bind;
 
 var skipNodes = [];
@@ -21,7 +21,6 @@ function shouldSkip(n) {
 }
 
 function bind(node, model) {
-	console.log('calling bind on', node)
 	if (shouldSkip(node)) return;
 
 	var bindingAccessor = new BindingAccessor(node)
@@ -47,6 +46,10 @@ function bind(node, model) {
 		}
 	}
 }
+
+Object.keys(_bindings).forEach(function (b) {
+	bind[b] = _bindings[b]
+})
 
 var ex = "text: stuff.asdf(), value: val, other-binding: stuffs.count < 9"
 
