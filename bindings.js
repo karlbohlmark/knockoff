@@ -49,7 +49,7 @@ function text (node, model, expr) {
 
 	function setText() {
 		var result = evaluate(model, expr)
-		node.textContent = result.toString()
+		node.textContent = (result || '').toString()
 	}
 	
 	setText()
