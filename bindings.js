@@ -300,11 +300,13 @@ function foreach (node, model, iteration, bind, skip) {
 
 	coll.forEach(addItem)
 
-	coll.on('replace', replaceItem)
+	if (coll.on) {
+		coll.on('replace', replaceItem)
 
-	coll.on('remove', removeItem)
+		coll.on('remove', removeItem)
 
-	coll.on('add', addItem)
+		coll.on('add', addItem)
+	}
 	return true
 }
 
