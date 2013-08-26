@@ -220,7 +220,7 @@ function click (node, model, method) {
 	}
 
 	node.addEventListener('click', function (e) {
-		fn.call(context)
+		fn.call(context, e)
 	})
 }
 
