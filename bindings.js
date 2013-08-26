@@ -13,6 +13,7 @@ module.exports.enable = enable
 module.exports.click = click
 module.exports.foreach = foreach
 module.exports.options = options
+module.exports.href = href
 
 function value (node, expr) {
 	console.log('apply value binding')
@@ -55,6 +56,20 @@ function text (node, model, expr) {
 	setText()
 
 	onchange(model, expr, setText)
+}
+
+function href (node, model, expr) {
+	console.log('apply href binding', model, expr)
+	
+
+	function setHref() {
+		var result = evaluate(model, expr)
+		node.href = (result || '').toString()
+	}
+	
+	setText()
+
+	onchange(model, expr, setHref)
 }
 
 function attr (node, model, bindings) {
@@ -270,6 +285,9 @@ function foreach (node, model, iteration, bind, skip) {
 	function addItem (item) {
 		var n = clone.cloneNode(true)
 		var m = {}
+		Object.keys(model).forEach(function (key) {
+			m[key] = model[key]
+		})
 		m[itemname] = item
 		append(n)
 		bind(n, m)
