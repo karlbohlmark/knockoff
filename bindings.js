@@ -67,7 +67,7 @@ function href (node, model, expr) {
 		node.href = (result || '').toString()
 	}
 	
-	setText()
+	setHref()
 
 	onchange(model, expr, setHref)
 }
