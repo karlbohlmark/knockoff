@@ -316,6 +316,21 @@ function foreach (node, model, iteration, bind, skip) {
 		node.parentNode.removeChild(node)
 	}
 
+	function moveItem (from, to, item) {
+		var node = itemNodeMap.get(item)
+		if (node === tail) {
+			tail = node.previousSibling
+		}
+		var parent = node.parentNode
+		var children = parent.children
+		var ref = children[to]
+		parent.removeChild(node)
+		if (from > to) {
+			ref = ref.previousSibling
+		}
+		insertAfter(node, ref)
+	}
+
 	coll.forEach(addItem)
 
 	if (coll.on) {
@@ -324,6 +339,8 @@ function foreach (node, model, iteration, bind, skip) {
 		coll.on('remove', removeItem)
 
 		coll.on('add', addItem)
+
+		coll.on('move', moveItem)
 	}
 	return true
 }
