@@ -18,7 +18,7 @@
 
     var User = model('User')
                 .attr('firstname')
-                .collection('roles')
+                .attr('roles', [{type: 'string'}])
     
     User.prototype.add = function () {
         this.roles.push('some-role')
