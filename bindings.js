@@ -17,6 +17,7 @@ module.exports.href = href
 module.exports.src = src
 module.exports.template = template
 module.exports.data = data
+module.exports.style = style
 
 function value (node, model, expr) {
 	console.log('apply text binding', model, expr)
@@ -136,6 +137,22 @@ function attr (node, model, bindings) {
 		var result = evaluate(model, b.value)
 		node.setAttribute( key(b.key), result)
 	}	
+}
+
+function style (node, model, expr) {
+	console.log('apply style binding', model, expr)
+	var val = codegen(expr)
+	setStyle(model, expr)
+	onchange(model, val, setStyle.bind(null, model, expr))
+
+	function setStyle(model, expr) {
+		var styleProperties = evaluate(model, expr)
+
+		var style = Object.keys(styleProperties).reduce(function (acc, cur) {
+			return acc + cur + ':' + styleProperties[cur] + ';';
+		}, '')
+		node.setAttribute('style', style);
+	}
 }
 
 function evaluate (model, expr) {
