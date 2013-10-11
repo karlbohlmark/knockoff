@@ -14,11 +14,40 @@ module.exports.click = click
 module.exports.foreach = foreach
 module.exports.options = options
 module.exports.href = href
+module.exports.src = src
+module.exports.template = template
+module.exports.data = data
 
-function value (node, expr) {
-	console.log('apply value binding')
+function value (node, model, expr) {
+	console.log('apply text binding', model, expr)
+	
+
+	function setValue() {
+		var result = evaluate(model, expr)
+		node.value = (result || '').toString()
+	}
+	
+	setValue()
+
+	onchange(model, expr, setValue)
+
+	var setter = getSetter(model, expr);
+
+	node.addEventListener('input', function (e) {
+		setter(e.target.value)
+	})
 }
 
+function getSetter(model, expr) {
+	var propertyPath = codegen(expr);
+	var parts = propertyPath.split('.')
+	var last = parts.pop()
+	var parentProp = parts.length > 1 ?
+		getPropertyPath(model, parts.join('.')) : model
+	return function (value) {
+		parentProp[last] = value;
+	}
+}
 
 function options (node, model, expr) {
 	var coll = model
@@ -70,6 +99,20 @@ function href (node, model, expr) {
 	setHref()
 
 	onchange(model, expr, setHref)
+}
+
+function src (node, model, expr) {
+	console.log('apply src binding', model, expr)
+	
+
+	function setSrc() {
+		var result = evaluate(model, expr)
+		node.src = (result || '').toString()
+	}
+	
+	setSrc()
+
+	onchange(model, expr, setSrc)
 }
 
 function attr (node, model, bindings) {
@@ -246,6 +289,27 @@ function getPropertyPath(obj, propertyPath) {
 	return val
 }
 
+function template (node, model, template, bind, skip, bindings) {
+	var templateName = evaluate(model, template)
+	var el = this.cloneTemplateNode(templateName);
+	
+	var data = bindings.filter(function (b) {
+		return b.key = 'data'
+	}).pop()
+
+	if (data) {
+		model = getPropertyPath(model, codegen(data.value))
+	}
+
+	node.innerHTML = '';
+	node.appendChild(el)
+	bind(el, model)
+}
+
+function data () {
+
+}
+
 function foreach (node, model, iteration, bind, skip) {
 	skip(node)
 	var collection = codegen(iteration.right)
@@ -316,6 +380,11 @@ function foreach (node, model, iteration, bind, skip) {
 		node.parentNode.removeChild(node)
 	}
 
+	function reset (oldItems, newItems) {
+		oldItems.forEach(removeItem)
+		coll.forEach(addItem)
+	}
+
 	function moveItem (from, to, item) {
 		var node = itemNodeMap.get(item)
 		if (node === tail) {
@@ -341,6 +410,8 @@ function foreach (node, model, iteration, bind, skip) {
 		coll.on('add', addItem)
 
 		coll.on('move', moveItem)
+
+		coll.on('reset', reset)
 	}
 	return true
 }
