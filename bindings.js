@@ -17,10 +17,16 @@ module.exports.href = href
 module.exports.src = src
 module.exports.template = template
 module.exports.data = data
-module.exports.style = style
+module.exports.change = change
+module.exports.optionsText = function () {
+	console.log('apply optionstext')
+}
+module.exports.optionsValue = function () {
+	console.log('apply optionsvalue')
+}
 
 function value (node, model, expr) {
-	console.log('apply text binding', model, expr)
+	console.log('apply value binding', codegen(expr))
 	
 
 	function setValue() {
@@ -43,19 +49,46 @@ function getSetter(model, expr) {
 	var propertyPath = codegen(expr);
 	var parts = propertyPath.split('.')
 	var last = parts.pop()
-	var parentProp = parts.length > 1 ?
+	var parentProp = parts.length > 0 ?
 		getPropertyPath(model, parts.join('.')) : model
 	return function (value) {
 		parentProp[last] = value;
 	}
 }
 
-function options (node, model, expr) {
-	var coll = model
+function options (node, model, expr, bind, skip, bindings) {
+	var coll = staticEval(expr, model)
+	//skip(node)
+	
+	var optionsTextExpr = bindings.filter(function (b) {
+		return b.key == 'optionsText'
+	}).pop()
+
+	var optionsValueExpr = bindings.filter(function (b) {
+		return b.key == 'optionsValue'
+	}).pop()
+
+	var optionsText, optionsValue
+
+	if (optionsTextExpr) {
+		optionsText = staticEval(optionsTextExpr.value, model)
+	}
+
+	if (optionsValueExpr) {
+		optionsValue = staticEval(optionsValueExpr.value, model)
+	}
 
 	function addOption (parent, value) {
 		var opt = document.createElement('option')
+		var text = value
+		if (typeof value == 'object') {
+			text = optionsText && value[optionsText] || value.text || value
+			value = optionsValue &&  value[optionsValue] || value.value || text
+		}
+		
 		opt.value = value
+		opt.textContent = text
+
 		parent.appendChild(opt)
 	}
 
@@ -68,7 +101,9 @@ function options (node, model, expr) {
 		coll.forEach(addOption.bind(null, node))
 	}
 
-	model.on('change', setOptions)
+	if (typeof coll.on == 'function') {
+		coll.on('change', setOptions)
+	}
 
 	setOptions()
 }
@@ -137,22 +172,6 @@ function attr (node, model, bindings) {
 		var result = evaluate(model, b.value)
 		node.setAttribute( key(b.key), result)
 	}	
-}
-
-function style (node, model, expr) {
-	console.log('apply style binding', model, expr)
-	var val = codegen(expr)
-	setStyle(model, expr)
-	onchange(model, val, setStyle.bind(null, model, expr))
-
-	function setStyle(model, expr) {
-		var styleProperties = evaluate(model, expr)
-
-		var style = Object.keys(styleProperties).reduce(function (acc, cur) {
-			return acc + cur + ':' + styleProperties[cur] + ';';
-		}, '')
-		node.setAttribute('style', style);
-	}
 }
 
 function evaluate (model, expr) {
@@ -284,6 +303,30 @@ function click (node, model, method) {
 	})
 }
 
+
+function change (node, model, method) {
+	var fn = staticEval(method, model)
+
+	var context = model;
+
+	if (method.type == 'MemberExpression') {
+		var property = method.property
+		if (method.object.object) {
+			while (method.object.object == 'MemberExpression') {
+				method.object = method.object.property
+				method.property = property
+			}
+		} else {
+			method = method.object
+		}
+		context = staticEval(method, model)
+	}
+
+	node.addEventListener('change', function (e) {
+		fn.call(context, e)
+	})
+}
+
 function getMemberExpressionProp (memberExpression) {
 
 }
@@ -365,7 +408,8 @@ function foreach (node, model, iteration, bind, skip) {
 
 	function addItem (item) {
 		var n = clone.cloneNode(true)
-		var m = {}
+		var m = Object.create(model.constructor.prototype)
+		// TODO: This is pretty hacky, reconsider
 		Object.keys(model).forEach(function (key) {
 			m[key] = model[key]
 		})
