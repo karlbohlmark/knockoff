@@ -9,6 +9,7 @@ var codegen = require('escodegen').generate
 module.exports.value = value
 module.exports.attr = attr
 module.exports.text = text
+module.exports.style = style
 module.exports.enable = enable
 module.exports.click = click
 module.exports.foreach = foreach
@@ -44,6 +45,23 @@ function value (node, model, expr) {
 		setter(e.target.value)
 	})
 }
+
+function style (node, model, expr) {
+       console.log('apply style binding', model, expr)
+       var val = codegen(expr)
+       setStyle(model, expr)
+       onchange(model, val, setStyle.bind(null, model, expr))
+
+       function setStyle(model, expr) {
+               var styleProperties = evaluate(model, expr)
+
+               var style = Object.keys(styleProperties).reduce(function (acc, cur) {
+                       return acc + cur + ':' + styleProperties[cur] + ';';
+               }, '')
+               node.setAttribute('style', style);
+       }
+}
+
 
 function getSetter(model, expr) {
 	var propertyPath = codegen(expr);
@@ -375,7 +393,7 @@ function foreach (node, model, iteration, bind, skip) {
 	var collection = codegen(iteration.right)
 	var itemname = iteration.left.name
 
-	var coll = getPropertyPath(model, collection)
+	var coll =  staticEval(iteration.right, model)
 
 	var id = uuid()
 	var comment = document.createComment('knockoff-foreach:' + id)
