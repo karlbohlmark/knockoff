@@ -56,6 +56,9 @@ function bind(node, model) {
 	}
 
 	var skipChildren = bindings.reduce(function (skip, b) {
+		if (b.skip) {
+			return skip;
+		}
 		return skip || _bindings[b.key].call(module.exports, node, model, b.value, bind, skipNode, bindings);
 	}, false)
 
