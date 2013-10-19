@@ -6,7 +6,7 @@
   "keywords": [],
   "dependencies": {
     "component/dom": "*",
-    "karlbohlmark/evented-model": "*",
+    "karlbohlmark/evented-model": "0.0.2",
     "component/to-function": "*",
     "karlbohlmark/implicit-globals": "*",
     "gjohnson/uuid": "*",
@@ -24,5 +24,6 @@
     "index.js",
     "binding-accessor.js",
     "bindings.js"
-  ]
+  ],
+  "remotes": []
 }
