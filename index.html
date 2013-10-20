@@ -5,7 +5,9 @@
         <span data-bind="text: user.firstname, attr: { id: user.firstname}, style: user.style, click: user.hello"></span>
         <input data-bind="value: user.firstname">
         <ul class="roles">
-            <li class="role" data-bind="foreach: role in user.roles, text: role, click: user.intro.bind(user, role)"></li>
+            <li class="role" data-bind="foreach: role in user.roles, click: user.intro.bind(user, role)">
+                <span data-bind="text: role"></span>
+            </li>
         </ul>
         <ul class="groups">
             <li class="group" data-bind="foreach: group in user.groups(), text: group"></li>
@@ -62,6 +64,13 @@
     lina.changes()(function (change) {
         console.log(change)
     })
+
+    setTimeout(function () {
+        userList.push(new User({
+            firstname: 'Anna',
+            roles: ['user']
+        }))
+    }, 500)
 
     lina.style['background-color'] = 'green'
     // Since the 'background-color' property is not part of the schema

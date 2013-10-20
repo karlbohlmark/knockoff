@@ -11,7 +11,7 @@ var _bindings = require('./bindings');
 /* Export bind */
 module.exports = function (node, modelOrPromise) {
 	when(modelOrPromise, function (value) {
-		bind(node, new ScopeChain(value));
+		bind(node, value);
 	})
 };
 
@@ -36,6 +36,10 @@ function shouldSkip(n) {
 var memoryleak = module.exports.memoryleak = new Map()
 
 function bind(node, model) {
+	if (!(model instanceof ScopeChain)){
+		model = new ScopeChain(model);
+	}
+
 	if (shouldSkip(node)) return;
 
 	if (memoryleak.get())

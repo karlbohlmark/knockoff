@@ -67,8 +67,7 @@ function memberExpressionParent(expr) {
 
 function getSetter(model, expr) {
 	return function (value) {
-		var parent = model.resolve(expr.object)
-		parent[expr.property.name] = value
+		model.set(expr, value)
 	}
 }
 
@@ -338,7 +337,7 @@ function watchPath(model, path, handler) {
 		if (prop.on) prop.on('change', handler);
 	}
 
-	var parent = model
+	var parent = model.head
 	var parentP = parentPath(path)
 	if (parentP) {
 		parent = getPropertyPath(model, parentP)

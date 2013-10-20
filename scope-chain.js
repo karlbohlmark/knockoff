@@ -8,10 +8,27 @@ function ScopeChain(head, tail) {
 }
 
 ScopeChain.prototype.resolve = function (expr) {
-	var val = staticEval(expr, this)
-	return val !== void(0) ?
-		val:
-		this.tail.resolve(expr)
+	return staticEval(expr, this)
+}
+
+ScopeChain.prototype.set = function (expr, value) {
+	var obj;
+	var name
+	if (expr.type == 'Identifier') {
+		obj = this.host(expr.name)
+		name = expr.name
+	} else {
+		obj = this.resolve(expr.object)
+		name = expr.property.name
+	}
+
+	obj[name] = value
+}
+
+ScopeChain.prototype.host = function (name) {
+	if (name in this.head) return this.head
+	if (!this.tail) return void(0);
+	return this.tail.host(name)
 }
 
 ScopeChain.prototype.has = function (name) {
