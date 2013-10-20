@@ -2,10 +2,10 @@
 
 <div id="root">
     <div data-bind="foreach: user in users">
-        <span data-bind="text: user.firstname, attr: { id: user.firstname}, style: user.style"></span>
+        <span data-bind="text: user.firstname, attr: { id: user.firstname}, style: user.style, click: user.hello"></span>
         <input data-bind="value: user.firstname">
         <ul class="roles">
-            <li class="role" data-bind="foreach: role in user.roles, text: role"></li>
+            <li class="role" data-bind="foreach: role in user.roles, text: role, click: user.intro.bind(user, role)"></li>
         </ul>
         <ul class="groups">
             <li class="group" data-bind="foreach: group in user.groups(), text: group"></li>
@@ -26,9 +26,15 @@
                 .attr('style', {type: 'object', 'default': {
                     'background-color': 'red'
                 }})
-    
-    User.prototype.add = function () {
-        this.roles.push('some-role')
+
+
+    User.prototype.hello = function () {
+        console.log('hello, my name is ' + this.firstname)
+    }
+
+    User.prototype.intro = function (role) {
+        this.hello()
+        console.log("I'm a ", role)
     }
 
     var lina = new User({
