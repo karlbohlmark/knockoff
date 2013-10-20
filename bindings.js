@@ -343,7 +343,7 @@ function watchPath(model, path, handler) {
 		parent = getPropertyPath(model, parentP)
 	}
 
-	if (parent.on) parent.on('change ' + propName, handler);
+	if (parent && parent.on) parent.on('change ' + propName, handler);
 }
 
 function enable (node, model, expr) {
