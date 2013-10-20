@@ -4,13 +4,14 @@ if (typeof Map == 'undefined') {
 
 var toFn = require('to-function')
 
+var ScopeChain = require('./scope-chain')
 var BindingAccessor = require('./binding-accessor')
 var _bindings = require('./bindings');
 
 /* Export bind */
 module.exports = function (node, modelOrPromise) {
 	when(modelOrPromise, function (value) {
-		bind(node, value);
+		bind(node, new ScopeChain(value));
 	})
 };
 

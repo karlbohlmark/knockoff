@@ -5,6 +5,7 @@ var uuid = require('uuid')
 var BindingAccessor = require('./binding-accessor')
 var staticEval = require('static-eval')
 var codegen = require('escodegen').generate
+var ScopeChain = require('./scope-chain')
 
 module.exports.value = value
 module.exports.attr = attr
@@ -57,15 +58,17 @@ function style (node, model, expr) {
        }
 }
 
+function memberExpressionParent(expr) {
+	if (expr.type !== 'MemberExpression') {
+		throw new Error('Expected MemberExpression, got ' + expr.type)
+	}
+
+}
 
 function getSetter(model, expr) {
-	var propertyPath = codegen(expr);
-	var parts = propertyPath.split('.')
-	var last = parts.pop()
-	var parentProp = parts.length > 0 ?
-		getPropertyPath(model, parts.join('.')) : model
 	return function (value) {
-		parentProp[last] = value;
+		var parent = model.resolve(expr.object)
+		parent[expr.property.name] = value
 	}
 }
 
@@ -90,7 +93,7 @@ function display (node, model, expr) {
 }
 
 function options (node, model, expr, bind, skip, bindings) {
-	var coll = staticEval(expr, model)
+	var coll = model.resolve(expr)
 	
 	bindings.forEach(function(b) {
 		if (['value', 'optionsText', 'optionsValue'].indexOf(b.key) != -1) {
@@ -109,11 +112,11 @@ function options (node, model, expr, bind, skip, bindings) {
 	var optionsText, optionsValue
 
 	if (optionsTextExpr) {
-		optionsText = staticEval(optionsTextExpr.value, model)
+		optionsText = model.resolve(optionsTextExpr.value)
 	}
 
 	if (optionsValueExpr) {
-		optionsValue = staticEval(optionsValueExpr.value, model)
+		optionsValue = model.resolve(optionsValueExpr.value)
 	}
 
 	function addOption (parent, value) {
@@ -259,7 +262,7 @@ function evaluate (model, expr) {
 		console.error(e)
 	}
 	*/
-	r = staticEval(expr, model)
+	r = model.resolve(expr)
 	return r
 }
 
@@ -356,7 +359,7 @@ function enable (node, model, expr) {
 }
 
 function click (node, model, method) {
-	var fn = staticEval(method, model)
+	var fn = model.resolve(method)
 
 	var context = model;
 
@@ -370,7 +373,7 @@ function click (node, model, method) {
 		} else {
 			method = method.object
 		}
-		context = staticEval(method, model)
+		context = model.resolve(method)
 	}
 
 	node.addEventListener('click', function (e) {
@@ -380,7 +383,7 @@ function click (node, model, method) {
 
 
 function change (node, model, method) {
-	var fn = staticEval(method, model)
+	var fn = model.resolve(method)
 
 	var context = model;
 
@@ -394,7 +397,7 @@ function change (node, model, method) {
 		} else {
 			method = method.object
 		}
-		context = staticEval(method, model)
+		context = model.resolve(method)
 	}
 
 	node.addEventListener('change', function (e) {
@@ -414,14 +417,31 @@ function insertAfter (newNode, ref) {
 	}
 }
 
-function getPropertyPath(obj, propertyPath) {
-	var parts = propertyPath.split('.')
-	var val = obj
-	for (var p = 0; p<parts.length; p++) {
-		var prop = parts[p]
-		val = val[prop]
+function memberExpressionFromPropertyPath (parts, object) {
+	if (!object) {
+		object = object || { type: "Identifier", name: parts.shift() }
 	}
-	return val
+
+	if (parts.length  == 0) {
+		return object;
+	}
+
+	object = {
+		type: 'MemberExpression',
+		computed: false,
+		object: object,
+		property: {
+			type: 'Identifier',
+			name: parts.shift()
+		}
+	}
+
+	return memberExpressionFromPropertyPath(parts, object)
+}
+
+function getPropertyPath(model, propertyPath) {
+	var expr = memberExpressionFromPropertyPath(propertyPath.split('.'));
+	return model.resolve(expr)
 }
 
 function template (node, model, template, bind, skip, bindings) {
@@ -450,7 +470,7 @@ function foreach (node, model, iteration, bind, skip) {
 	var collection = codegen(iteration.right)
 	var itemname = iteration.left.name
 
-	var coll =  staticEval(iteration.right, model)
+	var coll =  model.resolve(iteration.right)
 
 	var id = uuid()
 	var comment = document.createComment('knockoff-foreach:' + id)
@@ -483,12 +503,9 @@ function foreach (node, model, iteration, bind, skip) {
 
 	function addItem (item) {
 		var n = clone.cloneNode(true)
-		var m = Object.create(model.constructor.prototype)
-		// TODO: This is pretty hacky, reconsider
-		Object.keys(model).forEach(function (key) {
-			m[key] = model[key]
-		})
-		m[itemname] = item
+		var scope = {}
+		scope[itemname] = item
+		var m = new ScopeChain(scope, model)
 		append(n)
 		bind(n, m)
 		itemNodeMap.set(item, n)

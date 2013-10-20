@@ -23,7 +23,8 @@
   "scripts": [
     "index.js",
     "binding-accessor.js",
-    "bindings.js"
+    "bindings.js",
+    "scope-chain.js"
   ],
   "remotes": []
 }
