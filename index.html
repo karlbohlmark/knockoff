@@ -15,6 +15,12 @@
     </div>
 </div>
 
+<ul id="layers">
+    <li data-bind="foreach: layer in layers">
+        <span data-bind="text: layer, click: 'chooseLayer(layer)'"></span>
+    </li>
+</ul>
+
 <script src="build/build.js"></script>
 <script>
     $ = require('dom')
@@ -77,4 +83,20 @@
     // there is no change tracking performed on it. Thus an event is manually emitted
     // to trigger rendering.
     lina.emit('change style')
+
+    var layers = $('#layers').get(0)
+
+    var layersModel = {
+        layers: ['layer1', 'layer2']
+    }
+
+    layersModel.chooseLayer = function (layer) {
+        console.log('choose layer', layer)
+    }
+
+    react(layers, layersModel)
+
+    
+
+
 </script>

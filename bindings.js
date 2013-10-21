@@ -1,6 +1,7 @@
 var globals = require('implicit-globals')
 var memberExpressionsByRoot = require('member-expressions-by-root')
 var uuid = require('uuid')
+var acorn = require('acorn')
 
 var BindingAccessor = require('./binding-accessor')
 var staticEval = require('static-eval')
@@ -358,7 +359,16 @@ function enable (node, model, expr) {
 }
 
 function click (node, model, method) {
-	var fn = model.resolve(method)
+	var fn
+	if (method.type == 'Literal') {
+		method = acorn.parse(method.value).body[0].expression
+		fn = function () {
+			model.resolve(method);		
+		}
+	} else {
+		fn = model.resolve(method)	
+	}
+	
 
 	var context = model.head;
 
