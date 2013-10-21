@@ -116,6 +116,7 @@
 
     setTimeout(function () {
         layersModel.tmpl = 'tmpl2'
+        layersModel.layers.first().name = "the first layer"
     }, 2000)
 
     layersModel.chooseLayer = function (layer) {
