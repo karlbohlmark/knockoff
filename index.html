@@ -17,16 +17,17 @@
 
 <ul id="layers">
     <li data-bind="foreach: layer in layers">
-        <span data-bind="text: layer, click: 'chooseLayer(layer)'"></span>
+        <span data-bind="template: tmpl, data: layer, click: 'chooseLayer(layer)'"></span>
     </li>
 </ul>
+
+
 
 <script src="build/build.js"></script>
 <script>
     $ = require('dom')
-    var model = require('karlbohlmark-evented-model/index.js')
-    
-    var ObservableCollection = require('karlbohlmark-observable-collection/index.js')
+    var ObservableCollection = require('observable-collection')
+    var model = require('evented-model');
 
     var User = model('User')
                 .attr('firstname')
@@ -34,7 +35,6 @@
                 .attr('style', {type: 'object', 'default': {
                     'background-color': 'red'
                 }})
-
 
     User.prototype.hello = function () {
         console.log('hello, my name is ' + this.firstname)
@@ -86,13 +86,44 @@
 
     var layers = $('#layers').get(0)
 
-    var layersModel = {
-        layers: ['layer1', 'layer2']
-    }
+    var LayerModel = model('LayerModel', {
+        type: 'object',
+        properties: {
+            layers: {
+                type: 'array',
+                items: {
+                    type: 'object',
+                    properties: {
+                        name: {
+                            type: 'string'
+                        }
+                    }
+                }
+            },
+            tmpl: {
+                type: 'string'
+            }
+        }
+    })
+
+    var layersModel = new LayerModel({
+        layers: [
+            {name: 'layer1'},
+            {name: 'layer2'}
+        ],
+        tmpl: 'tmpl1'
+    })
+
+    setTimeout(function () {
+        layersModel.tmpl = 'tmpl2'
+    }, 2000)
 
     layersModel.chooseLayer = function (layer) {
         console.log('choose layer', layer, this)
     }
+
+    react.registerTemplate('tmpl1', '<span style="color: blue" data-bind="text: name"></span>')
+    react.registerTemplate('tmpl2', '<span style="color: green" data-bind="text: name"></span>')
 
     react(layers, layersModel)
 

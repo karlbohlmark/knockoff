@@ -329,6 +329,8 @@ function parentPath (path) {
 }
 
 function watchPath(model, path, handler) {
+	console.log('watch path', path)
+
 	var propName = path.split('.').pop()
 
 	var prop = getPropertyPath(model, path)
@@ -342,6 +344,8 @@ function watchPath(model, path, handler) {
 	var parentP = parentPath(path)
 	if (parentP) {
 		parent = getPropertyPath(model, parentP)
+	} else {
+		parent = model.host(propName)
 	}
 
 	if (parent && parent.on) parent.on('change ' + propName, handler);
@@ -454,20 +458,28 @@ function getPropertyPath(model, propertyPath) {
 }
 
 function template (node, model, template, bind, skip, bindings) {
-	var templateName = evaluate(model, template)
-	var el = this.cloneTemplateNode(templateName);
-	
 	var data = bindings.filter(function (b) {
-		return b.key = 'data'
+		return b.key == 'data'
 	}).pop()
 
+
+	var m = model
 	if (data) {
-		model = getPropertyPath(model, codegen(data.value))
+		m = getPropertyPath(model, codegen(data.value))
 	}
 
-	node.innerHTML = '';
-	node.appendChild(el)
-	bind(el, model)
+	var me = this
+	function applyTemplate () {
+		var templateName = evaluate(model, template)	
+		var el = me.cloneTemplateNode(templateName);
+		node.innerHTML = '';
+		node.appendChild(el)
+		bind(el, m)	
+	}
+
+	applyTemplate()
+
+	onchange(model, template, applyTemplate)
 }
 
 function data () {
