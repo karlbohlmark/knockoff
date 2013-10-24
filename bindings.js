@@ -398,7 +398,7 @@ function click (node, model, method) {
 function change (node, model, method) {
 	var fn = model.resolve(method)
 
-	var context = model;
+	var context = model.head;
 
 	if (method.type == 'MemberExpression') {
 		var property = method.property
