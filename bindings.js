@@ -24,9 +24,6 @@ module.exports.change = change
 module.exports.display = display
 
 function value (node, model, expr) {
-	console.log('apply value binding', codegen(expr))
-	
-
 	function setValue() {
 		var result = evaluate(model, expr)
 		node.value = (result || '').toString()
@@ -44,7 +41,6 @@ function value (node, model, expr) {
 }
 
 function style (node, model, expr) {
-       console.log('apply style binding', model, expr)
        var val = codegen(expr)
        setStyle(model, expr)
        onchange(model, val, setStyle.bind(null, model, expr))
@@ -73,8 +69,6 @@ function getSetter(model, expr) {
 }
 
 function display (node, model, expr) {
-	console.log('apply display binding', codegen(expr))
-
 	function setDisplay() {
 		var result = evaluate(model, expr)
 		if (result === true) {
@@ -188,9 +182,6 @@ function options (node, model, expr, bind, skip, bindings) {
 
 
 function text (node, model, expr) {
-	console.log('apply text binding', model, expr)
-	
-
 	function setText() {
 		var result = evaluate(model, expr)
 		node.textContent = (result || '').toString()
@@ -202,9 +193,6 @@ function text (node, model, expr) {
 }
 
 function href (node, model, expr) {
-	console.log('apply href binding', model, expr)
-	
-
 	function setHref() {
 		var result = evaluate(model, expr)
 		node.href = (result || '').toString()
@@ -216,9 +204,6 @@ function href (node, model, expr) {
 }
 
 function src (node, model, expr) {
-	console.log('apply src binding', model, expr)
-	
-
 	function setSrc() {
 		var result = evaluate(model, expr)
 		node.src = (result || '').toString()
@@ -230,8 +215,6 @@ function src (node, model, expr) {
 }
 
 function attr (node, model, bindings) {
-	console.log('apply attr binding', model, bindings)
-
 	bindings.properties.forEach(function (binding) {
 		setAttrs(binding)
 		onchange(model, codegen(binding.value), setAttrs.bind(null, binding))
@@ -329,8 +312,6 @@ function parentPath (path) {
 }
 
 function watchPath(model, path, handler) {
-	console.log('watch path', path)
-
 	var propName = path.split('.').pop()
 
 	var prop = getPropertyPath(model, path)
