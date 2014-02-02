@@ -78,7 +78,7 @@ function display (node, model, expr) {
 	function setDisplay() {
 		var result = evaluate(model, expr)
 		if (result === true) {
-			return delete node.style.display	
+			return node.style.display = ''
 		}
 		if (typeof result == 'string') {
 			return node.style.display = result
