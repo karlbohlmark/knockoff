@@ -11,9 +11,9 @@
   Given a template node:
 
 ```html
-    <form id="my-template-root" action="/action">
-        <input data-bind="value: firstname">
-    </form>
+<form id="my-template-root" action="/action">
+    <input data-bind="value: firstname">
+</form>
 ```
   Bind the (plain javascript) model object to the dom node, with two-way binding
 ```js
@@ -33,15 +33,15 @@ knockoff(el, model)
   Given a template node:
 
 ```html
-    <div class="container">
-	<ul>
-	    <li data-bind="foreach: user in users">
-		<span data-bind="text: user.name"></span>
-	    </li>
-	</ul>
-    </div>
+<div class="container">
+    <ul>
+        <li data-bind="foreach: user in users">
+        <span data-bind="text: user.name"></span>
+        </li>
+    </ul>
+</div>
 ```
-    Bind the change event emitting model object to the dom node
+  Bind the change event emitting model object to the dom node
 ```js
 var knockoff = require('knockoff')
 var ObservableCollection = require('observable-collection')
