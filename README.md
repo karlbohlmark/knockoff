@@ -15,7 +15,7 @@
         <input data-bind="value: firstname">
     </form>
 ```
-    Bind the (plain javascript) model object to the dom node, with two-way binding
+  Bind the (plain javascript) model object to the dom node, with two-way binding
 ```js
 var knockoff = require('knockoff')
 
