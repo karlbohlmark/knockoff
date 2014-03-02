@@ -22,6 +22,8 @@ module.exports.template = template
 module.exports.data = data
 module.exports.change = change
 module.exports.display = display
+module.exports.class = class_
+
 
 function value (node, model, expr) {
 	function setValue() {
@@ -67,6 +69,28 @@ function getSetter(model, expr) {
 		model.set(expr, value)
 	}
 }
+
+function class_(node, model, expr) {
+	var className = getPropertyName(expr)
+
+	function setClass() {
+		var result = evaluate(model, expr)
+		if (result === true) {		
+			return node.classList.add(className)
+		}
+		if (result === false) {		
+			return node.classList.remove(className)
+		}
+		if (typeof result == 'string') {
+			return node.classList.add(className)
+		}
+	}
+
+	setClass()
+
+	onchange(model, expr, setClass)	
+}
+
 
 function display (node, model, expr) {
 	function setDisplay() {
@@ -399,8 +423,11 @@ function change (node, model, method) {
 	})
 }
 
-function getMemberExpressionProp (memberExpression) {
-
+function getPropertyName (identifierOrMemberExpression) {
+	if (identifierOrMemberExpression.property) {
+		return identifierOrMemberExpression.property.name;
+	}
+	return identifierOrMemberExpression.name
 }
 
 function insertAfter (newNode, ref) {
