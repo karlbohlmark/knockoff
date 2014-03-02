@@ -22,7 +22,8 @@ module.exports.template = template
 module.exports.data = data
 module.exports.change = change
 module.exports.display = display
-module.exports.class = cls
+module.exports.class = class
+module.exports['translate-x'] = translateX
 
 
 function value (node, model, expr) {
@@ -68,6 +69,23 @@ function getSetter(model, expr) {
 	return function (value) {
 		model.set(expr, value)
 	}
+}
+
+function translateX (node, model, expr) {
+	console.log('apply translate-x binding', codegen(expr))
+
+	function translate() {
+		var result = evaluate(model, expr)
+		if (result) {
+			node.style.webkitTransform = 'translateX(' + result + 'px)'
+		} else {
+			node.style.webkitTransform = 'none'
+		}
+	}
+
+	translate()
+
+	onchange(model, expr, translate)
 }
 
 /*
