@@ -22,7 +22,7 @@ module.exports.template = template
 module.exports.data = data
 module.exports.change = change
 module.exports.display = display
-module.exports.class = class_
+module.exports.class = cls
 
 
 function value (node, model, expr) {
@@ -70,25 +70,43 @@ function getSetter(model, expr) {
 	}
 }
 
-function class_(node, model, expr) {
-	var className = getPropertyName(expr)
+/*
+   Binding for adding a 'flag' class to an element,
+   ie 'active', 'chosen', 'on' etc.
 
-	function setClass() {
-		var result = evaluate(model, expr)
-		if (result === true) {		
-			return node.classList.add(className)
-		}
-		if (result === false) {		
-			return node.classList.remove(className)
-		}
-		if (typeof result == 'string') {
-			return node.classList.add(className)
-		}
-	}
+   When the given expression (identifier or member expression) evaluates
+   to true, the identifier name is added to the class list of the element.
 
-	setClass()
+   Example template:
+   <div data-bind="class: active"></div>
 
-	onchange(model, expr, setClass)	
+   Model: { active: true }
+   Output: <div data-bind="class: active" class="active"></div>
+
+   Model: { active: false }
+   Output: <div data-bind="class: active"></div>
+ */
+function cls (node, model, expr) {
+       console.log('apply class binding', codegen(expr))
+
+       var className = expr.name;
+       if (expr.type == 'MemberExpression') {
+               className = expr.property.name
+       }
+
+
+       function setClass() {
+               var result = evaluate(model, expr)
+               if (result) {
+                       node.classList.add(className)
+               } else {
+                       node.classList.remove(className)
+               }
+       }
+
+       setClass()
+
+       onchange(model, expr, setClass)
 }
 
 
@@ -421,13 +439,6 @@ function change (node, model, method) {
 	node.addEventListener('change', function (e) {
 		fn.call(context, e)
 	})
-}
-
-function getPropertyName (identifierOrMemberExpression) {
-	if (identifierOrMemberExpression.property) {
-		return identifierOrMemberExpression.property.name;
-	}
-	return identifierOrMemberExpression.name
 }
 
 function insertAfter (newNode, ref) {
