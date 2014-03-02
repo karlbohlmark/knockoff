@@ -22,7 +22,7 @@ module.exports.template = template
 module.exports.data = data
 module.exports.change = change
 module.exports.display = display
-module.exports.class = class
+module.exports['class'] = cls
 module.exports['translate-x'] = translateX
 
 
