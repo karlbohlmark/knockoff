@@ -26,7 +26,7 @@ function parseBinding (str) {
 	var ast = acorn.parse(bindingExpression)
 	var bindingNodes = ast.body[0].expression.properties
 	return bindingNodes.map(function (b) {
-		b.key = b.key.name;
+		b.key = b.key.name || b.key.value;
 		b.raw = bindingExpression.substring(b.value.start, b.value.end)
 		return b;
 	})
