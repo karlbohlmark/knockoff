@@ -6,7 +6,7 @@
   "keywords": [],
   "dependencies": {
     "component/dom": "*",
-    "karlbohlmark/evented-model": "0.0.2",
+    "karlbohlmark/evented-model": "0.0.3",
     "component/to-function": "*",
     "karlbohlmark/implicit-globals": "*",
     "gjohnson/uuid": "*",
