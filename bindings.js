@@ -115,10 +115,13 @@ function cls (node, model, expr) {
 
        function setClass() {
                var result = evaluate(model, expr)
+               if (typeof result === "string") {
+                    className = result;
+               }
                if (result) {
-                       node.classList.add(className)
+                    node.classList.add(className)
                } else {
-                       node.classList.remove(className)
+                    node.classList.remove(className)
                }
        }
 
