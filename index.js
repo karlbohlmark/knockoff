@@ -64,7 +64,7 @@ function bind(node, model) {
 		if (b.skip) {
 			return skip;
 		}
-		return skip || _bindings[b.key].call(module.exports, node, model, b.value, bind, skipNode, bindings);
+		return skip || new  _bindings[b.key](node, model, b.value, bind, skipNode, bindings).skipChildren;
 	}, false)
 
 	if (!skipChildren) {
@@ -90,10 +90,14 @@ module.exports.cloneTemplateNode = function (name) {
 	return tmpl;
 }
 
+require('./bindings/binding').prototype.cloneTemplateNode = module.exports.cloneTemplateNode.bind(module.exports);
+
 module.exports.registerTemplate = function (name, template) {
 	this.templates = this.templates || {};
 	this.templates[name] = template;
 }
+
+require('./bindings/binding').prototype.registerTemplate = module.exports.registerTemplate.bind(module.exports);
 
 Object.keys(_bindings).forEach(function (b) {
 	module.exports[b] = _bindings[b]

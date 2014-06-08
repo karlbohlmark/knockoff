@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 
 <div id="root">
-    <div data-bind="foreach: user in users">
+    <div data-bind="foreach: user in users, class: user.active">
         <span data-bind="text: user.firstname, attr: { id: user.firstname}, style: user.style, click: user.hello"></span>
         <input data-bind="value: user.firstname">
         <ul class="roles">
@@ -15,7 +15,7 @@
     </div>
 </div>
 
-<ul id="layers">
+<ul id="layers" data-model='{"layers":[{"name":"layer1"},{"name":"layer2"}],"tmpl":"tmpl1"}'>
     <li data-bind="foreach: layer in layers">
         <span data-bind="template: tmpl, data: layer, click: 'chooseLayer(layer)'"></span>
     </li>
@@ -25,12 +25,13 @@
 
 <script src="build/build.js"></script>
 <script>
-    $ = require('dom')
-    var ObservableCollection = require('observable-collection')
-    var model = require('evented-model');
+    var $ = document.querySelector.bind(document);
+    var ObservableCollection = require('karlbohlmark~observable-collection@0.0.2')
+    var model = require('karlbohlmark~evented-model@0.0.3');
 
     var User = model('User')
                 .attr('firstname')
+                .attr('active', {type: 'boolean'})
                 .attr('roles', [{type: 'string'}])
                 .attr('style', {type: 'object', 'default': {
                     'background-color': 'red'
@@ -47,7 +48,8 @@
 
     var lina = new User({
         firstname: 'lina',
-        roles: ['admin', 'user']
+        roles: ['admin', 'user'],
+        active: true
     })
 
     var lisa = new User({
@@ -61,7 +63,7 @@
 
     var userList = new ObservableCollection([lina, lisa])
     
-    var root = $('#root').get(0)
+    var root = $('#root')
     var react = require("knockoff")
     react(root, { users: userList })
 
@@ -84,7 +86,7 @@
     // to trigger rendering.
     lina.emit('change style')
 
-    var layers = $('#layers').get(0)
+    var layers = $('#layers')
 
     var LayerModel = model('LayerModel', {
         type: 'object',

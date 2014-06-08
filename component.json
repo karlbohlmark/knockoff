@@ -23,8 +23,24 @@
   "scripts": [
     "index.js",
     "binding-accessor.js",
-    "bindings.js",
-    "scope-chain.js"
+    "scope-chain.js",
+    "bindings/index.js",
+    "bindings/binding.js",
+    "bindings/display.js",
+    "bindings/attr.js",
+    "bindings/src.js",
+    "bindings/class.js",
+    "bindings/click.js",
+    "bindings/href.js",
+    "bindings/enable.js",
+    "bindings/style.js",
+    "bindings/template.js",
+    "bindings/text.js",
+    "bindings/value.js",
+    "bindings/foreach.js",
+    "bindings/change.js",
+    "bindings/options.js",
+    "bindings/translate-x.js"
   ],
   "remotes": []
 }
