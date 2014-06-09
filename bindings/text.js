@@ -1,6 +1,21 @@
 var Binding = require('./binding')
 
-module.exports = TextBinding
+module.exports = text
+
+function text (node, model) {
+    if (!node.tagName) {
+        return
+    }
+
+    var bindings = Binding.prototype.getBindingAttrs(node);
+    var textBindingDecl = bindings && bindings.filter(function (b) {
+        return b.key == 'text'
+    }).pop()
+
+    if (textBindingDecl) {
+        new TextBinding(node, model, textBindingDecl.value);
+    }
+}
 
 function TextBinding (node, model, expr) {
     var self = this;

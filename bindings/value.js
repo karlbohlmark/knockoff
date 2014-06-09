@@ -1,10 +1,25 @@
 var Binding = require('./binding')
 
-module.exports = value;
+module.exports = valueVisitor;
 
-value.prototype = Object.create(Binding.prototype)
+function valueVisitor (node, model) {
+    if (!node.tagName) {
+        return
+    }
 
-function value (node, model, expr) {
+    var bindings = Binding.prototype.getBindingAttrs(node);
+    var valueBindingDecl = bindings && bindings.filter(function (b) {
+        return b.key == 'value'
+    }).pop()
+
+    if (valueBindingDecl) {
+        new ValueBinding(node, model, valueBindingDecl.value);
+    }
+}
+
+ValueBinding.prototype = Object.create(Binding.prototype)
+
+function ValueBinding (node, model, expr) {
     var self = this
     function setValue() {
         var result = self.evaluate(model, expr)

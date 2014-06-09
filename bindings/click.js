@@ -1,11 +1,26 @@
 var acorn = require('acorn')
 var Binding = require('./binding')
 
-module.exports = click;
+module.exports = clickVisitor;
 
-click.prototype = Object.create(Binding.prototype)
+function clickVisitor (node, model) {
+    if (!node.tagName) {
+        return
+    }
 
-function click (node, model, method) {
+    var bindings = Binding.prototype.getBindingAttrs(node);
+    var clickBindingDecl = bindings && bindings.filter(function (b) {
+        return b.key == 'click'
+    }).pop()
+
+    if (clickBindingDecl) {
+        return new ClickBinding(node, model, clickBindingDecl.value);
+    }
+}
+
+ClickBinding.prototype = Object.create(Binding.prototype)
+
+function ClickBinding (node, model, method) {
     var fn
     if (method.type == 'Literal') {
         method = acorn.parse(method.value).body[0].expression

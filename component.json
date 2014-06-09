@@ -36,6 +36,7 @@
     "bindings/style.js",
     "bindings/template.js",
     "bindings/text.js",
+    "bindings/data.js",
     "bindings/value.js",
     "bindings/foreach.js",
     "bindings/change.js",

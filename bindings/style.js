@@ -2,11 +2,26 @@ var codegen = require('escodegen').generate;
 
 var Binding = require('./binding')
 
-module.exports = style;
+module.exports = styleVisitor;
 
-style.prototype = Object.create(Binding.prototype)
+function styleVisitor (node, model) {
+    if (!node.tagName) {
+        return
+    }
 
-function style (node, model, expr) {
+    var bindings = Binding.prototype.getBindingAttrs(node);
+    var styleBindingDecl = bindings && bindings.filter(function (b) {
+        return b.key == 'style'
+    }).pop()
+
+    if (styleBindingDecl) {
+        new StyleBinding(node, model, styleBindingDecl.value);
+    }
+}
+
+StyleBinding.prototype = Object.create(Binding.prototype)
+
+function StyleBinding (node, model, expr) {
     var self = this
     var val = codegen(expr)
     setStyle(model, expr)

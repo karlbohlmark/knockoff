@@ -6,25 +6,43 @@ var Binding = require('./binding')
 
 module.exports = foreach
 
-foreach.prototype = Object.create(Binding.prototype);
-foreach.prototype.skipChildren = true
+function foreach(node, model, bind) {
+    if (!node.tagName) {
+        return
+    }
+    var bindings = Binding.prototype.getBindingAttrs(node);
 
-function foreach (node, model, iteration, bind, skip) {
-    skip(node)
-    var collection = codegen(iteration.right)
-    var itemname = iteration.left.name
+    bindings = bindings && bindings.filter(function (b) {
+        return b.key == 'foreach'
+    }).pop()
 
-    var coll =  model.resolve(iteration.right)
+    if (bindings) {
+        var foreachBinding = new ForeachBinding(node, model, bindings.value, bind)
+
+        return foreachBinding.tail;
+    }
+}
+
+ForeachBinding.prototype = Object.create(Binding.prototype);
+
+function ForeachBinding (node, model, expr, bind) {
+    console.log("NEW FOREACH BINDING", node)
+    var self = this;
+    var collection = codegen(expr.right)
+    var itemname = expr.left.name
+
+    var coll =  model.resolve(expr.right)
 
     var id = uuid()
-    var comment = document.createComment('knockoff-foreach:' + id)
+    var comment = document.createComment('knockoff-foreach:' + codegen(expr))
     var parent = node.parentNode
     var clone = node.cloneNode(true)
 
     parent.insertBefore(comment, node)
     node.parentNode.removeChild(node)
     
-    var bindings = this.getBindingAttrs(clone) 
+    clone.setAttribute('data-cloned', 'true')
+    var bindings = this.getBindingAttrs(clone)
 
     bindings = bindings.filter(function (b) {
         return b.key != 'foreach'
@@ -43,14 +61,20 @@ function foreach (node, model, iteration, bind, skip) {
 
     var itemNodeMap = new Map()
 
+
     function addItem (item) {
         var n = clone.cloneNode(true)
         var scope = {}
         scope[itemname] = item
-        var m = new ScopeChain(scope, model)
         append(n)
-        bind(n, m)
+        n.scope = scope
+        self.pushScope(n, scope)
         itemNodeMap.set(item, n)
+        if (self.initialized) {
+            var m = new ScopeChain(scope, model);
+            console.log("BINDING FROM FOREACH")
+            bind(n, m)
+        }
     }
 
     /*
@@ -108,7 +132,8 @@ function foreach (node, model, iteration, bind, skip) {
 
         coll.on('reset', reset)
     }
-    return true
+    this.initialized = true
+    this.tail = comment.nextSibling
 }
 
 function insertAfter (newNode, ref) {

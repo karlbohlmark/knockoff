@@ -9,7 +9,7 @@ function BindingAccessor (el) {
 
 BindingAccessor.prototype.get = function () {
 	var str = this.el.getAttribute('data-bind')
-	return parseBinding(str)
+	return str && parseBinding(str)
 }
 
 BindingAccessor.prototype.set = function (val) {
