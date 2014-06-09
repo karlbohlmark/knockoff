@@ -41,7 +41,14 @@ function TemplateBinding (node, model, template, bind) {
         node.innerHTML = '';
         node.appendChild(el)
         if (self.initialized) {
-            bind(el, el.model);
+            if (!el.model) {
+                el.model = node.firstElementChild.model;
+            }
+            if (el.model) {
+                bind(el, el.model);
+            } else {
+                console.log("FAILED TO UPDATE TEMPLATE, MISSING MODEL")
+            }
         }
         //bind(el, m)
     }

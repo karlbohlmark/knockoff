@@ -46,6 +46,7 @@ function bind(node, model) {
 
     visitTree(node, model, _bindings.template, true);
     visitTree(node, model, _bindings.foreach, true);
+    visitTree(node, model, _bindings.data, true);
     console.log("Foreach traversal", count)
     count = 0
     visitTree(node, model, _bindings.text, true);
@@ -64,9 +65,7 @@ function visitTree(node, model, visitor, skipSiblings) {
         node.visits = node.visits + 1;
     }
 
-    if (node.scope) {
-        model = new ScopeChain(node.scope, model)
-    }
+    model = node.model || model
 
     var replacedNode = visitor(node, model, bind);
     if (replacedNode) {
@@ -75,20 +74,13 @@ function visitTree(node, model, visitor, skipSiblings) {
 
     if (node.firstElementChild) {
         var child = node.firstElementChild;
-        if (node.scope) {
-            var childModel = new ScopeChain(node.scope, model);
-        }
-        visitTree(child, childModel || model, visitor);
+        visitTree(child, model, visitor);
     }
 
     if (skipSiblings) return;
     
     var nextSibling = node.nextSibling
     if (nextSibling) {
-        var scope = module.exports.scopes.get(nextSibling)
-        if (nextSibling.scope) {
-            model = new ScopeChain(nextSibling.scope, model);
-        }
         visitTree(nextSibling, model, visitor)
     }
 }

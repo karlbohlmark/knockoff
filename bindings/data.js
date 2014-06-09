@@ -18,17 +18,17 @@ function dataVisitor (node, model) {
     }
 }
 
+DataBinding.prototype = new Binding()
+
 function DataBinding (node, model, expr) {
     var self = this;
 
     function setData() {
         var result = self.evaluate(model, expr)
-        node.data = new ScopeChain(result)
+        node.firstElementChild.model = new ScopeChain(result)
     }
     
     setData()
 
     this.onchange(model, expr, setData)
 }
-
-TextBinding.prototype = new Binding()

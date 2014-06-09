@@ -14,7 +14,7 @@ function clickVisitor (node, model) {
     }).pop()
 
     if (clickBindingDecl) {
-        return new ClickBinding(node, model, clickBindingDecl.value);
+        new ClickBinding(node, model, clickBindingDecl.value);
     }
 }
 

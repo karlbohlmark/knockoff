@@ -67,8 +67,8 @@ function ForeachBinding (node, model, expr, bind) {
         var scope = {}
         scope[itemname] = item
         append(n)
-        n.scope = scope
-        self.pushScope(n, scope)
+        n.model = new ScopeChain(scope, model);
+
         itemNodeMap.set(item, n)
         if (self.initialized) {
             var m = new ScopeChain(scope, model);
