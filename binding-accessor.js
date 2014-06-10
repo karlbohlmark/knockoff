@@ -2,6 +2,7 @@ var acorn = require('acorn')
 var escodegen = require('escodegen')
 
 module.exports = BindingAccessor
+module.exports.parseBinding = parseBinding
 
 function BindingAccessor (el) {
 	this.el = el 

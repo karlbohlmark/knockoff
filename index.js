@@ -44,16 +44,16 @@ function bind(node, model) {
         model = new ScopeChain(model);
     }
 
-    visitTree(node, model, _bindings.template, true);
+    //visitTree(node, model, _bindings.template, true);
     visitTree(node, model, _bindings.foreach, true);
-    visitTree(node, model, _bindings.data, true);
+    //visitTree(node, model, _bindings.data, true);
     console.log("Foreach traversal", count)
     count = 0
     visitTree(node, model, _bindings.text, true);
     console.log("Text traversal", count)
-    visitTree(node, model, _bindings.click, true);
-    visitTree(node, model, _bindings.value, true);
-    visitTree(node, model, _bindings.style, true);
+    //visitTree(node, model, _bindings.click, true);
+    //visitTree(node, model, _bindings.value, true);
+    //visitTree(node, model, _bindings.style, true);
 }
 
 function visitTree(node, model, visitor, skipSiblings) {
@@ -72,8 +72,8 @@ function visitTree(node, model, visitor, skipSiblings) {
         return visitTree(replacedNode, model, visitor)
     }
 
-    if (node.firstElementChild) {
-        var child = node.firstElementChild;
+    if (node.firstChild) {
+        var child = node.firstChild;
         visitTree(child, model, visitor);
     }
 
