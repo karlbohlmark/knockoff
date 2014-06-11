@@ -35,7 +35,7 @@ function foreach(node, model, bind) {
     if (bindings) {
         var foreachBinding = new ForeachBinding(node, model, bindings.value, bind)
 
-        return foreachBinding.tail;
+        return foreachBinding.nextNode;
     }
 }
 
@@ -98,6 +98,7 @@ function RevivedForeachBinding (comment, model, foreachDecl, bind) {
     }
 
     this.initialized = true
+    this.nextNode = comment.nextSibling
 }
 
 function ForeachBinding (node, model, expr, bind) {
@@ -105,6 +106,8 @@ function ForeachBinding (node, model, expr, bind) {
     var self = this;
     var collection = codegen(expr.right)
     var itemName = expr.left.name
+    this.itemName = itemName
+    this.model = model
 
     var coll = this.coll = model.resolve(expr.right)
 
@@ -123,8 +126,6 @@ function ForeachBinding (node, model, expr, bind) {
     })
 
     this.setBindingAttrs(clone, bindings)
-
-    var tail;
 
     var itemNodeMap = this.itemNodeMap = new Map()
 
