@@ -2,9 +2,13 @@ var Binding = require('./binding')
 
 module.exports = change;
 
-change.prototype = Object.create(Binding.prototype)
+function change (node) {
 
-function change (node, model, method) {
+}
+
+ChangeBinding.prototype = Object.create(Binding.prototype)
+
+function ChangeBinding (node, model, method) {
     var fn = model.resolve(method)
 
     var context = model.head;

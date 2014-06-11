@@ -1,8 +1,8 @@
 var Binding = require('./binding')
 
-module.exports = text
+module.exports = textVisitor
 
-function text (node, model) {
+function textVisitor (node, model) {
     if (!node.tagName) {
         return
     }
@@ -16,6 +16,8 @@ function text (node, model) {
         new TextBinding(node, model, textBindingDecl.value);
     }
 }
+
+textVisitor.visitTags = true
 
 function TextBinding (node, model, expr) {
     var self = this;

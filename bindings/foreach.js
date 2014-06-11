@@ -1,5 +1,6 @@
 var codegen = require('escodegen').generate;
 var uuid = require('uuid');
+var domify = require('domify')
 
 var ScopeChain = require('../scope-chain')
 var Binding = require('./binding')
@@ -51,17 +52,18 @@ function RevivedForeachBinding (comment, model, foreachDecl, bind) {
     this.model = model
 
     var items = []
+    var itemNodeMap = this.itemNodeMap = new Map()
     var next, clone
 
     if (comment.nextSibling.nodeType == 8) {
         // There are no items.
         var templateComment = comment.nextSibling
-        var tmpDiv = document.createElement('div')
-        tmpDiv.innerHTML = templateComment.textContent
-        this.clone = tmpDiv.firstElementChild;
+        var templateNode = domify(templateComment.textContent)
+        this.clone = templateNode
+        this.nextNode = templateComment.nextSibling
     } else {
-        var itemNodeMap = this.itemNodeMap = new Map()
         var n = comment
+        // TODO: Currently assumes that the reattached model is the same as the one used for rendering
         coll.forEach(function (item, index) {
             n = n.nextSibling;
             if (index == 0) {
@@ -69,41 +71,32 @@ function RevivedForeachBinding (comment, model, foreachDecl, bind) {
             }
             var scope = {}
             scope[itemName] = item
-            n.model = new ScopeChain(scope, this.model);
+            n.model = new ScopeChain(scope, self.model);
             itemNodeMap.set(item, n);
+            var bindings = self.getBindingAttrs(n)
+            if (bindings) {
+                bindings = bindings.filter(function (b) {
+                    return b.key !== 'foreach';
+                })
+                self.setBindingAttrs(n, bindings);
+            }
             self.tail = n;
         })
-
-        // while((next = next.nextSibling) && next.nodeType == 1) {
-        //     if (!clone) {
-        //         clone = next.cloneNode(true);
-        //     }
-        //     items.push(next)
-        // }
-        if (n.nextSibling.nodeType == 8) {
-            var text = n.nextSibling.textContent;
-            if (text == '/knockoff-' + foreachDecl) {
-                console.log("fine and dandy")
-            } else {
-                console.log('nope, problems')
-            }
-        } else {
-            console.log("expected ending comment, found", next)
-        }
-
-        if (coll.on) {
-            coll.on('replace', this.replaceItem.bind(this))
-
-            coll.on('remove', this.removeItem.bind(this))
-
-            coll.on('add', this.addItem.bind(this))
-
-            coll.on('move', this.moveItem.bind(this))
-
-            coll.on('reset', this.reset.bind(this))
-        }
         this.nextNode = comment.nextSibling
     }
+
+    if (coll.on) {
+        coll.on('replace', this.replaceItem.bind(this))
+
+        coll.on('remove', this.removeItem.bind(this))
+
+        coll.on('add', this.addItem.bind(this))
+
+        coll.on('move', this.moveItem.bind(this))
+
+        coll.on('reset', this.reset.bind(this))
+    }
+
     this.initialized = true
 }
 
