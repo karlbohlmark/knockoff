@@ -53,7 +53,7 @@ function bind(node, model) {
     console.log("Text traversal", count)
     visitTree(node, model, _bindings.click, true);
     visitTree(node, model, _bindings.src, true);
-    //visitTree(node, model, _bindings.value, true);
+    visitTree(node, model, _bindings.value, true);
     //visitTree(node, model, _bindings.style, true);
     visitTree(node, model, _bindings.change, true);
 }
