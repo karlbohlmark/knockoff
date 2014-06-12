@@ -1,9 +1,24 @@
 var codegen = require('escodegen').generate;
 var Binding = require('./binding')
 
-module.exports = cls;
+module.exports = classVisitor;
 
-cls.prototype = Object.create(Binding.prototype)
+function classVisitor (node, model) {
+    if (!node.tagName) {
+        return
+    }
+
+    var bindings = Binding.prototype.getBindingAttrs(node);
+    var classBindingDecl = bindings && bindings.filter(function (b) {
+        return b.key == 'class'
+    }).pop()
+
+    if (classBindingDecl) {
+        new ClassBinding(node, model, classBindingDecl.value);
+    }
+}
+
+ClassBinding.prototype = Object.create(Binding.prototype)
 
 /*
    Binding for adding a 'flag' class to an element,
@@ -21,7 +36,7 @@ cls.prototype = Object.create(Binding.prototype)
    Model: { active: false }
    Output: <div data-bind="class: active"></div>
  */
-function cls (node, model, expr) {
+function ClassBinding (node, model, expr) {
        console.log('apply class binding', codegen(expr))
 
        var className = expr.name;
