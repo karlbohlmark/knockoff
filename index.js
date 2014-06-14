@@ -8,6 +8,8 @@ var ScopeChain = require('./scope-chain')
 var BindingAccessor = require('./binding-accessor')
 var _bindings = require('./bindings');
 
+var Binding = require('./bindings/binding')
+
 /* Export bind */
 module.exports = function (node, modelOrPromise) {
     when(modelOrPromise, function (value) {
@@ -44,24 +46,30 @@ function bind(node, model) {
         model = new ScopeChain(model);
     }
 
-    //visitTree(node, model, _bindings.template, true);
-    visitTree(node, model, _bindings.foreach, true);
-    //visitTree(node, model, _bindings.data, true);
+    var opt = {
+        skipSiblings: true
+    }
+    visitTree(node, model, _bindings.template, opt);
+    visitTree(node, model, _bindings.options, opt);
+    visitTree(node, model, _bindings.foreach, opt);
+    visitTree(node, model, _bindings.data, opt);
     console.log("Foreach traversal", count)
     count = 0
-    visitTree(node, model, _bindings.text, true);
+    visitTree(node, model, _bindings.text, opt);
     console.log("Text traversal", count)
-    visitTree(node, model, _bindings.click, true);
-    visitTree(node, model, _bindings.src, true);
-    visitTree(node, model, _bindings.value, true);
-    //visitTree(node, model, _bindings.style, true);
-    visitTree(node, model, _bindings.class, true);
-    visitTree(node, model, _bindings.display, true);
-    visitTree(node, model, _bindings.change, true);
+    visitTree(node, model, _bindings.click, opt);
+    visitTree(node, model, _bindings.src, opt);
+    visitTree(node, model, _bindings.value, opt);
+    visitTree(node, model, _bindings.href, opt);
+    visitTree(node, model, _bindings.style, opt);
+    visitTree(node, model, _bindings.class, opt);
+    visitTree(node, model, _bindings.display, opt);
+    visitTree(node, model, _bindings.change, opt);
 
 }
 
-function visitTree(node, model, visitor, skipSiblings) {
+function visitTree(node, model, visitor, opt) {
+    opt = opt || {}
     count++
     console.log("visit Tree", node)
     if (!node.visits) {
@@ -82,7 +90,7 @@ function visitTree(node, model, visitor, skipSiblings) {
         visitTree(child, model, visitor);
     }
 
-    if (skipSiblings) return;
+    if (opt.skipSiblings) return;
     
     var nextSibling = node.nextSibling
     if (nextSibling) {
@@ -105,26 +113,26 @@ module.exports.cloneTemplateNode = function (name) {
     return tmpl;
 }
 
-require('./bindings/binding').prototype.cloneTemplateNode = module.exports.cloneTemplateNode.bind(module.exports);
+Binding.prototype.cloneTemplateNode = module.exports.cloneTemplateNode.bind(module.exports);
 
 module.exports.registerTemplate = function (name, template) {
     this.templates = this.templates || {};
     this.templates[name] = template;
 }
 
-require('./bindings/binding').prototype.registerTemplate = module.exports.registerTemplate.bind(module.exports);
+Binding.prototype.registerTemplate = module.exports.registerTemplate.bind(module.exports);
 
 
 module.exports.pushScope = function (node, scope) {
     this.scopes.set(node, scope)
 }
 
-require('./bindings/binding').prototype.pushScope = module.exports.pushScope.bind(module.exports);
+Binding.prototype.pushScope = module.exports.pushScope.bind(module.exports);
 
 Object.keys(_bindings).forEach(function (b) {
     module.exports[b] = _bindings[b]
 })
 
-var ex = "text: stuff.asdf(), value: val, other-binding: stuffs.count < 9"
+// var ex = "text: stuff.asdf(), value: val, other-binding: stuffs.count < 9"
 
-//console.log(parseBinding(ex))
+// //console.log(parseBinding(ex))

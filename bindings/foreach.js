@@ -104,6 +104,7 @@ function RevivedForeachBinding (comment, model, foreachDecl, bind) {
 function ForeachBinding (node, model, expr, bind) {
     console.log("NEW FOREACH BINDING", node)
     var self = this;
+    this.bind = bind;
     var collection = codegen(expr.right)
     var itemName = expr.left.name
     this.itemName = itemName
@@ -171,8 +172,8 @@ ForeachBinding.prototype.addItem = function addItem (item) {
 ForeachBinding.prototype.removeItem = function removeItem (item) {
     var node = this.itemNodeMap.get(item)
     this.itemNodeMap.delete(item)
-    if (node === tail) {
-        tail = node.previousSibling
+    if (node === this.tail) {
+        this.tail = node.previousSibling
     }
     node.parentNode.removeChild(node)
 }

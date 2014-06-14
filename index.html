@@ -1,6 +1,8 @@
 <meta charset="utf-8">
 
 <div id="root">
+    <select data-bind="options: users, value: selectedUser, optionsText: firstname, optionsValue: firstname"></select>
+
     <div data-bind="foreach: user in users, class: user.active">
         <span data-bind="text: user.firstname, attr: { id: user.firstname}, style: user.style, click: user.hello"></span>
         <input data-bind="value: user.firstname">
@@ -65,7 +67,7 @@
     
     var root = $('#root')
     var react = require("knockoff")
-    react(root, { users: userList })
+    react(root, { users: userList, selectedUser: 'lisa' })
 
     lina.roles.push('another-role')
 

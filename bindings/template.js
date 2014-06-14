@@ -47,6 +47,8 @@ function TemplateBinding (node, model, template, bind) {
             if (el.model) {
                 bind(el, el.model);
             } else {
+                // After the visitor-rewrite, templates are static bindings.
+                // TODO: Make templates dynamic (reactive) again.
                 console.log("FAILED TO UPDATE TEMPLATE, MISSING MODEL")
             }
         }

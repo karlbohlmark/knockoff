@@ -1,10 +1,25 @@
 var Binding = require('./binding')
 
-module.exports = href;
+module.exports = hrefVisitor;
 
-href.prototype = Object.create(Binding.prototype)
+function hrefVisitor (node, model) {
+    if (!node.tagName) {
+        return
+    }
 
-function href (node, model, expr) {
+    var bindings = Binding.prototype.getBindingAttrs(node);
+    var hrefBindingDecl = bindings && bindings.filter(function (b) {
+        return b.key == 'href'
+    }).pop()
+
+    if (hrefBindingDecl) {
+        new HrefBinding(node, model, hrefBindingDecl.value);
+    }
+}
+
+HrefBinding.prototype = Object.create(Binding.prototype)
+
+function HrefBinding (node, model, expr) {
     var self = this
     function setHref() {
         var result = self.evaluate(model, expr)

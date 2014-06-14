@@ -12,7 +12,7 @@
     "karlbohlmark/implicit-globals": "*",
     "gjohnson/uuid": "*",
     "karlbohlmark/observable-collection": "*",
-    "karlbohlmark/static-eval": "0.0.5",
+    "karlbohlmark/static-eval": "0.0.6",
     "karlbohlmark/acorn": "*",
     "karlbohlmark/escodegen": "*",
     "karlbohlmark/member-expressions-by-root": "*",

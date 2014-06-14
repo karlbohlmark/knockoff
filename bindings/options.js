@@ -1,18 +1,56 @@
 var Binding = require('./binding')
 
-module.exports = options;
+module.exports = optionsVisitor;
 
-options.prototype = Object.create(Binding.prototype)
+function optionsVisitor (node, model, bind) {
+    if (!node.tagName) {
+        return
+    }
 
-function options (node, model, expr, bind, skip, bindings) {
+    var bindings = Binding.prototype.getBindingAttrs(node);
+    var optionsBindingDecl = bindings && bindings.filter(function (b) {
+        return b.key == 'options'
+    }).pop()
+
+    if (optionsBindingDecl) {
+        new OptionsBinding(node, model, optionsBindingDecl.value, bindings);
+    }
+}
+
+OptionsBinding.prototype = Object.create(Binding.prototype)
+
+function OptionsBinding (node, model, expr, bindings) {
     var self = this
     var coll = model.resolve(expr)
+
+    var enumerable = expr.name
     
-    bindings.forEach(function(b) {
-        if (['value', 'optionsText', 'optionsValue'].indexOf(b.key) != -1) {
-            b.skip = true;
-        }
-    })
+    var option = document.createElement('option')
+    var optionValueBinding = bindings.filter(function (b) { return b.key == "optionsValue"}).pop();
+    var optionTextBinding = bindings.filter(function (b) { return b.key == "optionsText"}).pop();
+    
+
+    var valueExpression, textExpression;
+    if (optionValueBinding){
+        valueExpression = 'o.' + optionValueBinding.raw
+    } else {
+        valueExpression = 'o.value || o.id || o';
+    }
+    if (optionTextBinding){
+        textExpression = 'o.' + optionTextBinding.raw
+    } else {
+        textExpression = 'o.text || o.name || o';
+    }
+
+    option.setAttribute('data-bind', "value: " + valueExpression
+        + ", text: " + textExpression + ", foreach: o in " + enumerable)
+    node.appendChild(option)
+    return;
+    // bindings.forEach(function(b) {
+    //     if (['value', 'optionsText', 'optionsValue'].indexOf(b.key) != -1) {
+    //         b.skip = true;
+    //     }
+    // })
     
     var optionsTextExpr = bindings.filter(function (b) {
         return b.key == 'optionsText'
