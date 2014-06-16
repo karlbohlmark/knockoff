@@ -32,12 +32,12 @@ function OptionsBinding (node, model, expr, bindings) {
 
     var valueExpression, textExpression;
     if (optionValueBinding){
-        valueExpression = 'o.' + optionValueBinding.raw
+        valueExpression = 'o.' + unquote(optionValueBinding.raw)
     } else {
         valueExpression = 'o.value || o.id || o';
     }
     if (optionTextBinding){
-        textExpression = 'o.' + optionTextBinding.raw
+        textExpression = 'o.' + unquote(optionTextBinding.raw)
     } else {
         textExpression = 'o.text || o.name || o';
     }
@@ -135,4 +135,9 @@ function OptionsBinding (node, model, expr, bindings) {
     }
 
     setOptions()
+}
+
+function unquote(val) {
+    // Yeah whatever
+    return val.replace('"', '').replace("'", '');
 }

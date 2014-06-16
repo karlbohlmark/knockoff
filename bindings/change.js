@@ -1,9 +1,20 @@
 var Binding = require('./binding')
 
-module.exports = change;
+module.exports = changeVisitor;
 
-function change (node) {
+function changeVisitor (node, model) {
+    if (!node.tagName) {
+        return
+    }
 
+    var bindings = Binding.prototype.getBindingAttrs(node);
+    var changeBindingDecl = bindings && bindings.filter(function (b) {
+        return b.key == 'change'
+    }).pop()
+
+    if (changeBindingDecl) {
+        new ChangeBinding(node, model, changeBindingDecl.value);
+    }
 }
 
 ChangeBinding.prototype = Object.create(Binding.prototype)
