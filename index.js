@@ -64,6 +64,7 @@ function bind(node, model) {
     visitTree(node, model, _bindings.style, opt);
     visitTree(node, model, _bindings.class, opt);
     visitTree(node, model, _bindings.display, opt);
+    visitTree(node, model, _bindings.attr, opt);
     visitTree(node, model, _bindings.change, opt);
 
 }
@@ -71,7 +72,7 @@ function bind(node, model) {
 function visitTree(node, model, visitor, opt) {
     opt = opt || {}
     count++
-    console.log("visit Tree", node)
+    //console.log("visit Tree", node)
     if (!node.visits) {
         node.visits = 1
     } else {

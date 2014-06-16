@@ -32,10 +32,13 @@ ValueBinding.prototype = Object.create(Binding.prototype)
 
 function ValueBinding (node, model, expr) {
     var self = this
+    var inputting;
     function setValue() {
-        console.log("Setting value of node", node)
         var result = self.evaluate(model, expr)
-        node.value = (result || '').toString()
+        if (inputting !== result) {
+            console.log("Setting value of node", node)
+            node.value = (result || '').toString()
+        }
     }
     
     setValue()
@@ -45,6 +48,8 @@ function ValueBinding (node, model, expr) {
     var setter = self.getSetter(model, expr);
 
     node.addEventListener('input', function (e) {
+        inputting = e.target.value
         setter(e.target.value)
+        inputting = void 0
     })
 }

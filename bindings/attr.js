@@ -2,11 +2,26 @@ var codegen = require('escodegen').generate;
 
 var Binding = require('./binding')
 
-module.exports = attr;
+module.exports = attrVisitor;
 
-attr.prototype = Object.create(Binding.prototype)
+function attrVisitor (node, model) {
+    if (!node.tagName) {
+        return
+    }
 
-function attr (node, model, bindings) {
+    var bindings = Binding.prototype.getBindingAttrs(node);
+    var attrBindingDecl = bindings && bindings.filter(function (b) {
+        return b.key == 'attr'
+    }).pop()
+
+    if (attrBindingDecl) {
+        new AttrBinding(node, model, attrBindingDecl.value);
+    }
+}
+
+AttrBinding.prototype = Object.create(Binding.prototype)
+
+function AttrBinding (node, model, bindings) {
     var self = this;
     bindings.properties.forEach(function (binding) {
         setAttrs(binding)
