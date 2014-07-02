@@ -45,7 +45,6 @@ function bind(node, model) {
     if (!(model instanceof ScopeChain)){
         model = new ScopeChain(model);
     }
-
     var opt = {
         skipSiblings: true
     }
@@ -57,6 +56,7 @@ function bind(node, model) {
     count = 0
     visitTree(node, model, _bindings.text, opt);
     console.log("Text traversal", count)
+    visitTree(node, model, _bindings.html, opt);
     visitTree(node, model, _bindings.click, opt);
     visitTree(node, model, _bindings.src, opt);
     visitTree(node, model, _bindings.value, opt);
@@ -66,6 +66,8 @@ function bind(node, model) {
     visitTree(node, model, _bindings.display, opt);
     visitTree(node, model, _bindings.attr, opt);
     visitTree(node, model, _bindings.change, opt);
+    visitTree(node, model, _bindings.input, opt);
+    visitTree(node, model, _bindings.keypress, opt);
 
 }
 
@@ -98,6 +100,8 @@ function visitTree(node, model, visitor, opt) {
         visitTree(nextSibling, model, visitor)
     }
 }
+
+module.exports.ScopeChain = ScopeChain;
 
 module.exports.cloneTemplateNode = function (name) {
     if (!(name in this.templates)) {

@@ -37,10 +37,13 @@
     "bindings/style.js",
     "bindings/template.js",
     "bindings/text.js",
+    "bindings/html.js",
     "bindings/data.js",
     "bindings/value.js",
     "bindings/foreach.js",
     "bindings/change.js",
+    "bindings/input.js",
+    "bindings/keypress.js",
     "bindings/options.js",
     "bindings/translate-x.js"
   ],
