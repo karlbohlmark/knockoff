@@ -4,7 +4,7 @@ var uuid = require('uuid')
 var acorn = require('acorn')
 
 var BindingAccessor = require('../binding-accessor')
-var codegen = require('escodegen').generate
+
 var ScopeChain = require('../scope-chain')
 
 module.exports = Binding;
@@ -33,24 +33,55 @@ Binding.prototype.evaluate = function evaluate (model, expr) {
     Run handler when expr changes in the context of model
 */
 Binding.prototype.onchange = function onchange (model, expr, handler) {
-    var rootDeps = globals(expr)
+    watchExpression(model, expr, handler);
+}
 
-    var memberExpressions = memberExpressionsByRoot.bind(null, expr)
 
-    var deps = rootDeps.reduce(function (acc, cur) {
-        acc.push(cur)
-        acc.push.apply(acc, memberExpressions(cur).map(codegen))
-        return acc
-    }, [])
+function watchExpression(obj, expr, cb) {
+    //TODO: Handle computed member expressions
+    switch(expr.type) {
+        case "Literal":
+            break;
+        case "ExpressionStatement":
+            watchExpression(obj, expr.expression, cb);
+            break;
+        case "BinaryExpression":
+            watchExpression(obj, expr.left, cb);
+            watchExpression(obj, expr.right, cb);
+            break;
+        case "CallExpression":
+            watchExpression(obj, expr.callee, cb)
+            expr.arguments.forEach(function(arg) {
+                watchExpression(obj, arg, cb);
+            })
+            break;
+        case "MemberExpression":
+            watchExpression(obj, expr.object, cb)
+            var obj = resolve(obj, expr.object)
+            if (obj) {
+                watchExpression(obj, expr.property, cb)
+            } else {
+                console.log("no", expr.object)
+            }
+            break;
+        case "Identifier":
+            var identifierName = expr.name;
+            if (obj instanceof ScopeChain) {
+                obj = obj.host(identifierName);
+            }
+            if (!obj) {
+                console.log("Could not resolve", identifierName)
+                return
+            }
+            if (obj.on) {
+                console.log("attaching change handler", expr.name)
+                obj.on("change " + expr.name, cb)
+            }
+    }
+}
 
-    var watched = []
-    watchPath.bind(watched)
-
-    subPaths(deps)
-        .map(function (p) {
-            watchPath(model, p, handler)
-        })
-
+function resolve(obj, expr) {
+    return obj.resolve(expr)
 }
 
 Binding.prototype.getSetter = function getSetter(model, expr) {
@@ -75,26 +106,6 @@ function getPropertyPath(model, propertyPath) {
     return model.resolve(expr)
 }
 
-function watchPath(model, path, handler) {
-    var propName = path.split('.').pop()
-
-    var prop = getPropertyPath(model, path)
-
-    // If array-like object watch for changes
-    if (typeof prop == 'object' && prop.length) {
-        if (prop.on) prop.on('change', handler);
-    }
-
-    var parent = model.head
-    var parentP = parentPath(path)
-    if (parentP) {
-        parent = getPropertyPath(model, parentP)
-    } else {
-        parent = model.host(propName)
-    }
-
-    if (parent && parent.on) parent.on('change ' + propName, handler);
-}
 
 function subPaths (paths) {
     var o = {}

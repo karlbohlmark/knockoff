@@ -1,5 +1,3 @@
-var codegen = require('escodegen').generate;
-
 var Binding = require('./binding')
 
 module.exports = attrVisitor;
@@ -25,7 +23,7 @@ function AttrBinding (node, model, bindings) {
     var self = this;
     bindings.properties.forEach(function (binding) {
         setAttrs(binding)
-        self.onchange(model, codegen(binding.value), setAttrs.bind(null, binding))
+        self.onchange(model, binding.value, setAttrs.bind(null, binding))
     })
 
     function key (n) {

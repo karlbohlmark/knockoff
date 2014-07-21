@@ -1,5 +1,3 @@
-var codegen = require('escodegen').generate;
-
 var Binding = require('./binding')
 
 module.exports = styleVisitor;
@@ -23,9 +21,8 @@ StyleBinding.prototype = Object.create(Binding.prototype)
 
 function StyleBinding (node, model, expr) {
     var self = this
-    var val = codegen(expr)
     setStyle(model, expr)
-    this.onchange(model, val, setStyle.bind(null, model, expr))
+    this.onchange(model, expr, setStyle.bind(null, model, expr))
 
     function setStyle(model, expr) {
            var styleProperties = self.evaluate(model, expr)

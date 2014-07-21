@@ -1,5 +1,3 @@
-var codegen = require('escodegen').generate;
-
 var Binding = require('./binding')
 
 module.exports = templateVisitor;

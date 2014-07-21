@@ -1,7 +1,7 @@
 module.exports = translateX;
 
 function translateX (node, model, expr) {
-    console.log('apply translate-x binding', codegen(expr))
+    console.log('apply translate-x binding', expr)
 
     function translate() {
         var result = evaluate(model, expr)

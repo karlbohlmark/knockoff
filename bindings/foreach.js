@@ -1,4 +1,3 @@
-var codegen = require('escodegen').generate;
 var uuid = require('uuid');
 var domify = require('domify')
 
@@ -28,12 +27,12 @@ function foreach(node, model, bind) {
     var bindings = Binding.prototype.getBindingAttrs(node);
 
 
-    bindings = bindings && bindings.filter(function (b) {
+    var binding = bindings && bindings.filter(function (b) {
         return b.key == 'foreach'
     }).pop()
 
-    if (bindings) {
-        var foreachBinding = new ForeachBinding(node, model, bindings.value, bind)
+    if (binding) {
+        var foreachBinding = new ForeachBinding(node, model, binding.value, bind)
 
         return foreachBinding.nextNode;
     }
@@ -105,14 +104,13 @@ function ForeachBinding (node, model, expr, bind) {
     console.log("NEW FOREACH BINDING", node)
     var self = this;
     this.bind = bind;
-    var collection = codegen(expr.right)
     var itemName = expr.left.name
     this.itemName = itemName
     this.model = model
 
     var coll = this.coll = model.resolve(expr.right)
 
-    var comment = this.comment = document.createComment('knockoff-foreach:' + codegen(expr))
+    var comment = this.comment = document.createComment('knockoff-foreach:' + JSON.stringify(expr))
     var parent = node.parentNode
     var clone = this.clone = node.cloneNode(true)
 

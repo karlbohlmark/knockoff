@@ -1,4 +1,3 @@
-var codegen = require('escodegen').generate;
 var Binding = require('./binding')
 
 module.exports = classVisitor;
@@ -37,8 +36,6 @@ ClassBinding.prototype = Object.create(Binding.prototype)
    Output: <div data-bind="class: active"></div>
  */
 function ClassBinding (node, model, expr) {
-       console.log('apply class binding', codegen(expr))
-
        var className = expr.name;
        if (expr.type == 'MemberExpression') {
                className = expr.property.name

@@ -1,5 +1,4 @@
 var acorn = require('acorn')
-var escodegen = require('escodegen')
 
 module.exports = BindingAccessor
 module.exports.parseBinding = parseBinding
@@ -9,13 +8,19 @@ function BindingAccessor (el) {
 }
 
 BindingAccessor.prototype.get = function () {
+	var bindings = this.el.getAttribute('data-bind-parsed');
+	if (bindings) {
+		return JSON.parse(bindings);
+	}
 	var str = this.el.getAttribute('data-bind')
 	return str && parseBinding(str)
 }
 
 BindingAccessor.prototype.set = function (val) {
 	if (typeof val == 'object') {
-		val = serializeBindingAttr(val)
+		val = JSON.stringify(val)
+		this.el.setAttribute('data-bind-parsed', val)
+		return
 	}
 	return this.el.setAttribute('data-bind', val)
 }
@@ -32,13 +37,6 @@ function parseBinding (str) {
 		return b;
 	})
 }
-
-function serializeBindingAttr(bindings) {
-	return bindings.map(function (b) {
-		return b.key + ':' + escodegen.generate(b.value)
-	}).join(', ')
-}
-
 
 module.exports.test = function () {
 	var e = "text: name + 3, click: doStuff"
