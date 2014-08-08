@@ -20,7 +20,15 @@ function inputVisitor (node, model) {
 InputBinding.prototype = Object.create(Binding.prototype)
 
 function InputBinding (node, model, method) {
-    var fn = model.resolve(method)
+    var fn
+    if (method.type == 'Literal') {
+        method = acorn.parse(method.value).body[0].expression
+        fn = function () {
+            model.resolve(method);      
+        }
+    } else {
+        fn = model.resolve(method)  
+    }
 
     var context = model.head;
 

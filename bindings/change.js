@@ -1,3 +1,4 @@
+var acorn = require('acorn')
 var Binding = require('./binding')
 
 module.exports = changeVisitor;
@@ -20,7 +21,15 @@ function changeVisitor (node, model) {
 ChangeBinding.prototype = Object.create(Binding.prototype)
 
 function ChangeBinding (node, model, method) {
-    var fn = model.resolve(method)
+    var fn
+    if (method.type == 'Literal') {
+        method = acorn.parse(method.value).body[0].expression
+        fn = function () {
+            model.resolve(method);      
+        }
+    } else {
+        fn = model.resolve(method)  
+    }
 
     var context = model.head;
 

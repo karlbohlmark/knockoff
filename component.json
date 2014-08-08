@@ -9,12 +9,10 @@
     "component/domify": "*",
     "karlbohlmark/evented-model": "0.0.3",
     "component/to-function": "*",
-    "karlbohlmark/implicit-globals": "*",
     "gjohnson/uuid": "*",
     "karlbohlmark/observable-collection": "*",
     "karlbohlmark/static-eval": "0.0.6",
     "karlbohlmark/acorn": "*",
-    "karlbohlmark/member-expressions-by-root": "*",
     "paulmillr/es6-shim": "*"
   },
   "development": {},
