@@ -1,5 +1,3 @@
-var globals = require('implicit-globals')
-var memberExpressionsByRoot = require('member-expressions-by-root')
 var uuid = require('uuid')
 var acorn = require('acorn')
 
@@ -67,7 +65,7 @@ function watchExpression(obj, expr, cb) {
         case "Identifier":
             var identifierName = expr.name;
             if (obj instanceof ScopeChain) {
-                obj = obj.host(identifierName);
+                obj = obj.host(identifierName) || obj.head;
             }
             if (!obj) {
                 console.log("Could not resolve", identifierName)
