@@ -2,7 +2,7 @@
   "name": "knockoff",
   "repo": "karlbohlmark/knockoff",
   "description": "Knockout knockoff",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "keywords": [],
   "dependencies": {
     "component/dom": "*",
