@@ -11,7 +11,7 @@
     "component/to-function": "*",
     "gjohnson/uuid": "*",
     "karlbohlmark/observable-collection": "*",
-    "karlbohlmark/static-eval": "0.0.7",
+    "karlbohlmark/static-eval": "0.0.8",
     "karlbohlmark/acorn": "*",
     "paulmillr/es6-shim": "*"
   },
