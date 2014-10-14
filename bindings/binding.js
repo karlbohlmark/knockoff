@@ -72,7 +72,6 @@ function watchExpression(obj, expr, cb) {
                 return
             }
             if (obj.on) {
-                console.log("attaching change handler", expr.name)
                 obj.on("change " + expr.name, cb)
             }
     }

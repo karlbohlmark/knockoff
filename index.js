@@ -39,8 +39,6 @@ var memoryleak = module.exports.memoryleak = new Map()
 
 var scopes = module.exports.scopes = new Map()
 
-var count = 0
-
 function bind(node, model) {
     if (!(model instanceof ScopeChain)){
         model = new ScopeChain(model);
@@ -52,10 +50,7 @@ function bind(node, model) {
     visitTree(node, model, _bindings.options, opt);
     visitTree(node, model, _bindings.foreach, opt);
     visitTree(node, model, _bindings.data, opt);
-    console.log("Foreach traversal", count)
-    count = 0
     visitTree(node, model, _bindings.text, opt);
-    console.log("Text traversal", count)
     visitTree(node, model, _bindings.html, opt);
     visitTree(node, model, _bindings.click, opt);
     visitTree(node, model, _bindings.src, opt);
@@ -73,7 +68,6 @@ function bind(node, model) {
 
 function visitTree(node, model, visitor, opt) {
     opt = opt || {}
-    count++
     //console.log("visit Tree", node)
     if (!node.visits) {
         node.visits = 1
