@@ -2,7 +2,7 @@
   "name": "knockoff",
   "repo": "karlbohlmark/knockoff",
   "description": "Knockout knockoff",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "keywords": [],
   "dependencies": {
     "component/dom": "*",
@@ -11,15 +11,17 @@
     "component/to-function": "*",
     "gjohnson/uuid": "*",
     "karlbohlmark/observable-collection": "*",
-    "karlbohlmark/static-eval": "0.0.8",
+    "karlbohlmark/static-eval": "0.0.9",
     "karlbohlmark/acorn": "*",
-    "paulmillr/es6-shim": "*"
+    "paulmillr/es6-shim": "*",
+    "component/escape-html": "^1.0.1"
   },
   "development": {},
   "license": "MIT",
   "main": "index.js",
   "scripts": [
     "index.js",
+    "ast-transforms.js",
     "binding-accessor.js",
     "scope-chain.js",
     "bindings/index.js",

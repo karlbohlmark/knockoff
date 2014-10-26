@@ -158,7 +158,7 @@ ForeachBinding.prototype.addItem = function addItem (item) {
     scope[this.itemName] = item
     this.append(n)
     n.model = new ScopeChain(scope, this.model);
-
+    n.dataItem = item
     this.itemNodeMap.set(item, n)
     if (this.initialized) {
         var m = new ScopeChain(scope, this.model);

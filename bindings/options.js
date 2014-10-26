@@ -2,6 +2,33 @@ var Binding = require('./binding')
 
 module.exports = optionsVisitor;
 
+function ValueBind (node, model, expr) {
+    var self = this
+    var inputting;
+    function setValue() {
+        var result = self.evaluate(model, expr)
+        if (inputting !== result) {
+            console.log("Setting value of node", node)
+            node.value = (result || '').toString()
+        }
+    }
+    
+    //setValue()
+
+    //this.onchange(model, expr, setValue)
+
+    var setter = Binding.prototype.getSetter(model, expr);
+
+    node.addEventListener('input', function (e) {
+        inputting = e.target.value
+        var opt = e.target.options[e.target.selectedIndex]
+        var val = opt.dataItem;
+        console.log("set", model, expr, val)
+        setter(val)
+        inputting = void 0
+    })
+}
+
 function optionsVisitor (node, model, bind) {
     if (!node.tagName) {
         return
@@ -21,8 +48,19 @@ OptionsBinding.prototype = Object.create(Binding.prototype)
 
 function OptionsBinding (node, model, expr, bindings) {
     var self = this
-    var coll = model.resolve(expr)
 
+    var itemName = 'o'
+    if (expr.type == 'BinaryExpression') {
+        itemName = expr.left.name;
+        expr = expr.right
+        var valBinding = bindings.filter(function (b) {
+            return b.key == 'value';
+        }).pop()
+        var vbind = new ValueBind(node, model, valBinding.value)
+        bindings = bindings.filter(function (b) {return b.key !== 'value'})
+        //bindings.push({key: optionsValue, raw: expr})
+    }
+    var coll = model.resolve(expr)
     var enumerable = expr.name
     
     var option = document.createElement('option')
@@ -32,18 +70,25 @@ function OptionsBinding (node, model, expr, bindings) {
 
     var valueExpression, textExpression;
     if (optionValueBinding){
-        valueExpression = 'o.' + unquote(optionValueBinding.raw)
+        valueExpression = itemName + '.' + unquote(optionValueBinding.raw)
     } else {
-        valueExpression = 'o.value || o.id || o';
+        valueExpression = itemName + '.value || ' + itemName + '.id || ' + itemName;
     }
     if (optionTextBinding){
-        textExpression = 'o.' + unquote(optionTextBinding.raw)
+        textExpression = itemName + '.' + unquote(optionTextBinding.raw)
     } else {
-        textExpression = 'o.text || o.name || o';
+        textExpression = itemName + '.text || ' + itemName + '.name || ' + itemName;
     }
 
+    var textBinding = bindings.filter(function (b) { return b.key == "text"}).pop();
+    if (textBinding) {
+        textExpression =  textBinding.raw;
+    }
+    bindings = bindings.filter(function (b) {return b.key != 'text'})
+    self.setBindingAttrs(node, bindings)
+
     option.setAttribute('data-bind', "value: " + valueExpression
-        + ", text: " + textExpression + ", foreach: o in " + enumerable)
+        + ", text: " + textExpression + ", foreach: " + itemName + " in " + enumerable)
     node.appendChild(option)
     return;
     // bindings.forEach(function(b) {
@@ -132,6 +177,8 @@ function OptionsBinding (node, model, expr, bindings) {
             setter(node.value)
         })
         self.onchange(model, valueBinding.value, setValue)
+        bindings = bindings.filter(function (b) {return b.key != 'value'})
+        self.setBindingAttrs(node, bindings)
     }
 
     setOptions()

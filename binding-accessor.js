@@ -1,4 +1,5 @@
 var acorn = require('acorn')
+var applyTransforms = require('./ast-transforms')
 
 module.exports = BindingAccessor
 module.exports.parseBinding = parseBinding
@@ -13,7 +14,15 @@ BindingAccessor.prototype.get = function () {
 		return JSON.parse(bindings);
 	}
 	var str = this.el.getAttribute('data-bind')
-	return str && parseBinding(str)
+	if (!str) return false
+	var parsedBinding = parseBinding(str)
+	
+	parsedBinding.forEach(function (b) {
+		b.value = applyTransforms(b.value)
+	})
+
+	this.set(parsedBinding)
+	return parsedBinding;
 }
 
 BindingAccessor.prototype.set = function (val) {

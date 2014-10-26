@@ -17,6 +17,14 @@ module.exports = function (node, modelOrPromise) {
     })
 };
 
+module.exports.setFormatter = function (name, formatter) {
+    if (!formatter) {
+        formatter = name;
+        name = formatter.name;
+    }
+    ScopeChain.globals.formatters[name] = formatter;
+}
+
 function when (promiseOrValue, cb) {
     if (promiseOrValue.then) {
         promiseOrValue.then(cb)

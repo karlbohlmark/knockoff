@@ -2,9 +2,20 @@ var staticEval = require('static-eval')
 
 module.exports = ScopeChain
 
+ScopeChain.globals = {
+	'Date': Date,
+	'Array': Array,
+	'Object': Object,
+	'Number': Number,
+	formatters: {}
+}
+
 function ScopeChain(head, tail) {
 	this.head = head
 	this.tail = tail
+	if (typeof tail == 'undefined') {
+		this.tail = new ScopeChain(ScopeChain.globals, false)
+	}
 }
 
 ScopeChain.prototype.resolve = function (expr) {

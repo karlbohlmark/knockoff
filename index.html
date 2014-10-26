@@ -1,14 +1,14 @@
 <meta charset="utf-8">
 
 <div id="root">
-    <select data-bind="options: users, value: selectedUser, optionsText: firstname, optionsValue: firstname"></select>
+    <select data-bind="options: users, change: printUser, value: selectedUser, optionsText: firstname, optionsValue: firstname"></select>
 
     <div data-bind="foreach: user in users, class: user.active">
         <span data-bind="text: user.firstname, attr: { id: user.firstname}, style: user.style, click: user.hello"></span>
         <input data-bind="value: user.firstname">
         <ul class="roles">
             <li class="role" data-bind="foreach: role in user.roles, click: user.intro.bind(user, role)">
-                <span data-bind="text: role"></span>
+                <span data-bind="text: role | money"></span>
             </li>
         </ul>
         <ul class="groups">
@@ -29,7 +29,7 @@
 <script>
     var $ = document.querySelector.bind(document);
     var ObservableCollection = require('karlbohlmark~observable-collection@0.0.2')
-    var model = require('karlbohlmark~evented-model@0.0.3');
+    var model = require('karlbohlmark~evented-model@0.0.5');
 
     var User = model('User')
                 .attr('firstname')
@@ -67,7 +67,18 @@
     
     var root = $('#root')
     var react = require("knockoff")
-    react(root, { users: userList, selectedUser: 'lisa' })
+
+    react.setFormatter(function money(v) {
+        return v + " $";
+    })
+
+    react(root, {
+        users: userList,
+        selectedUser: 'lisa',
+        printUser: function () {
+            console.log("stuff changed!!!!!")
+        }
+    })
 
     lina.roles.push('another-role')
 
