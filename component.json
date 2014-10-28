@@ -39,6 +39,7 @@
     "bindings/html.js",
     "bindings/data.js",
     "bindings/value.js",
+    "bindings/checked.js",
     "bindings/foreach.js",
     "bindings/change.js",
     "bindings/input.js",

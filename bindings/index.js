@@ -1,4 +1,5 @@
 exports.value	= require('./value')
+exports.checked   = require('./checked')
 exports.attr	= require('./attr')
 exports.text	= require('./text')
 exports.html    = require('./html')

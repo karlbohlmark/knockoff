@@ -63,6 +63,7 @@ function bind(node, model) {
     visitTree(node, model, _bindings.click, opt);
     visitTree(node, model, _bindings.src, opt);
     visitTree(node, model, _bindings.value, opt);
+    visitTree(node, model, _bindings.checked, opt);
     visitTree(node, model, _bindings.href, opt);
     visitTree(node, model, _bindings.style, opt);
     visitTree(node, model, _bindings.class, opt);

@@ -22,7 +22,6 @@ function transform(node) {
 }
 
 function replace(node) {
-    console.log("replace", node.type)
     if (node.type === 'BinaryExpression' && node.operator === '|') {
         var formatter = node.right.name;
         return {
