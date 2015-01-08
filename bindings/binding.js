@@ -44,6 +44,7 @@ function watchExpression(obj, expr, cb) {
             watchExpression(obj, expr.expression, cb);
             break;
         case "BinaryExpression":
+        case "LogicalExpression":
             watchExpression(obj, expr.left, cb);
             watchExpression(obj, expr.right, cb);
             break;
@@ -74,6 +75,10 @@ function watchExpression(obj, expr, cb) {
             if (obj.on) {
                 obj.on("change " + expr.name, cb)
             }
+            break;
+        case "UnaryExpression":
+            watchExpression(obj, expr.argument, cb);
+            break;
     }
 }
 
